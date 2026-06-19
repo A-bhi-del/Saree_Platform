@@ -40,7 +40,7 @@ function AppRoutes() {
       {/* <Route path="/admin" element={<AdminDashboard />} /> */}
       {/* <Route path="/admin/add-saree" element={<AddSaree />} /> */}
       {/* <Route path="/customer" element={<CustomerDashboard />} /> */}
-      <Route path="sarees" element={<Sarees />} />
+      <Route path="/sarees" element={<Sarees />} />
     </Routes>
   );
 }
