@@ -6,9 +6,11 @@ import CustomerDashboard from "../pages/CustomerDashboard";
 import Sarees from "../pages/Sarees";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
+import RequestSaree from "../pages/RequestSaree";
+import Requests from "../pages/Requests";
 
 function AppRoutes() {
-    const {setRole} = useAuth();
+  const { setRole } = useAuth();
   return (
     <Routes>
       <Route path="/" element={<Login setRole={setRole} />} />
@@ -20,6 +22,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/customer"
         element={
@@ -37,10 +40,31 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
       {/* <Route path="/admin" element={<AdminDashboard />} /> */}
       {/* <Route path="/admin/add-saree" element={<AddSaree />} /> */}
       {/* <Route path="/customer" element={<CustomerDashboard />} /> */}
+
       <Route path="/sarees" element={<Sarees />} />
+
+      <Route
+        path="/request-saree"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <RequestSaree />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/request"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <Requests />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 }

@@ -25,7 +25,7 @@ function RequestProvider({ children }) {
 
   return (
     <RequestContext.Provider
-      value={{ requests, addRequest, approveRequest, rejectRequest }}
+      value={{ requests, addRequest, approveRequest, rejectRequest}}
     >
       {children}
     </RequestContext.Provider>
