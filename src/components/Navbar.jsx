@@ -33,6 +33,8 @@ function Navbar() {
       {role === "customer" && <Link to={"/request-saree"}>Add Request</Link>}
 
       <Link to={"/sarees"}>Sarees</Link>
+      
+      {role === "customer" && <Link to={"/favourites-page"}>Favourites</Link>}
 
     </nav>
   );

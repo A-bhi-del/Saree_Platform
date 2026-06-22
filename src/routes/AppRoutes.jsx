@@ -8,6 +8,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
 import RequestSaree from "../pages/RequestSaree";
 import Requests from "../pages/Requests";
+import FavouritePage from "../pages/FavouritePage";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -65,6 +66,14 @@ function AppRoutes() {
         }
       />
 
+      <Route
+        path="/favourites-page"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <FavouritePage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
