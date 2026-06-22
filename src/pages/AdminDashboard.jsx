@@ -2,19 +2,113 @@ import { Link } from "react-router-dom";
 import { useSaree } from "../context/SareeContext";
 
 function AdminDashboard() {
-    const {sarees} = useSaree();
-    const TotalStock = sarees.reduce((total, saree) => total + saree.stock, 0);
+  const { sarees } = useSaree();
+  const TotalStock = sarees.reduce((total, saree) => total + saree.stock, 0);
+  const LowStock = sarees.filter((saree) => saree.stock < 5).length;
 
-    const LowStock = sarees.filter((saree) => saree.stock < 5).length;
+  if (sarees.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-500 font-serif">
+        <div className="text-4xl mb-3">📦</div>
+        <h2 className="text-xl font-semibold text-gray-700">Inventory is Completely Empty</h2>
+        <p className="text-sm text-gray-400 mt-1">Get started by launching your very first item variant.</p>
+        <Link 
+          to="/admin/add-saree" 
+          className="mt-5 bg-rose-900 text-white px-5 py-2 rounded text-xs font-semibold uppercase tracking-wider shadow hover:bg-rose-950 transition-colors"
+        >
+          + Add First Saree
+        </Link>
+      </div>
+    );
+  }
 
-    if(sarees.length === 0) {
-        return <h2>No Sarees Added yet</h2>
-    }
   return (
-    <div>
-      <p>Total Sarees: {sarees.length}</p>
-      <p>Total Stock: {TotalStock}</p>
-      <p>Low Stock: {LowStock}</p>
+    <div className="bg-gray-50 min-h-screen px-4 md:px-12 py-10">
+      
+      {/* Upper Welcome Header */}
+      <div className="mb-10 border-b border-gray-200 pb-5">
+        <h1 className="text-2xl font-bold text-gray-800 font-serif uppercase tracking-wide">
+          Admin Control Center
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">Real-time boutique metrics, batch health monitoring, and stock alerts.</p>
+      </div>
+
+      {/* Analytics Scoreboard Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+        
+        {/* Variety Total Counter */}
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Total Unique Designs</span>
+            <span className="text-3xl font-extrabold text-gray-800 mt-2 block">{sarees.length}</span>
+          </div>
+          <div className="text-2xl bg-gray-50 p-3 rounded-lg">🏷️</div>
+        </div>
+
+        {/* Total Loose Stock Counter */}
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+          <div>
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Total Pieces in Stock</span>
+            <span className="text-3xl font-extrabold text-rose-900 mt-2 block">{TotalStock}</span>
+          </div>
+          <div className="text-2xl bg-rose-50 p-3 rounded-lg text-rose-900">📦</div>
+        </div>
+
+        {/* Low Stock Tracker with conditional border alerts */}
+        <div className={`bg-white p-6 rounded-xl shadow-sm flex items-center justify-between border ${
+          LowStock > 0 ? 'border-red-100 border-l-4 border-l-red-500' : 'border-gray-100'
+        }`}>
+          <div>
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Low Stock Alerts</span>
+            <span className={`text-3xl font-extrabold mt-2 block ${LowStock > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+              {LowStock}
+            </span>
+          </div>
+          <div className={`text-2xl p-3 rounded-lg ${LowStock > 0 ? 'bg-red-50' : 'bg-emerald-50'}`}>
+            ⚠️
+          </div>
+        </div>
+
+      </div>
+
+      {/* Quick Launch Control Hub */}
+      <div>
+        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+          Quick Utilities
+        </h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          
+          <Link 
+            to="/admin/add-saree"
+            className="p-5 bg-white border border-gray-200 rounded-xl hover:border-rose-900 transition-all flex flex-col justify-between group cursor-pointer shadow-sm"
+          >
+            <span className="font-serif font-bold text-gray-800 group-hover:text-rose-900 text-base">Add New Saree</span>
+            <span className="text-xs text-gray-400 mt-1">Upload fresh fabric images, details, and adjust inventories.</span>
+            <span className="text-rose-900 text-xs font-bold mt-4 inline-block group-hover:translate-x-1 transition-transform">Launch Form &rarr;</span>
+          </Link>
+
+          <Link 
+            to="/request"
+            className="p-5 bg-white border border-gray-200 rounded-xl hover:border-amber-600 transition-all flex flex-col justify-between group cursor-pointer shadow-sm"
+          >
+            <span className="font-serif font-bold text-gray-800 group-hover:text-amber-700 text-base">Manage Custom Requests</span>
+            <span className="text-xs text-gray-400 mt-1">Review user design submissions, approve tickets or reject orders.</span>
+            <span className="text-amber-600 text-xs font-bold mt-4 inline-block group-hover:translate-x-1 transition-transform">Open Queue &rarr;</span>
+          </Link>
+
+          <Link 
+            to="/sarees"
+            className="p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition-all flex flex-col justify-between group cursor-pointer shadow-sm"
+          >
+            <span className="font-serif font-bold text-gray-800 text-base">View live Shop Catalog</span>
+            <span className="text-xs text-gray-400 mt-1">See how the product grids and stock numbers render for users live.</span>
+            <span className="text-gray-600 text-xs font-bold mt-4 inline-block group-hover:translate-x-1 transition-transform">Browse Store &rarr;</span>
+          </Link>
+
+        </div>
+      </div>
+
     </div>
   );
 }
