@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNotification } from "./NotificationContext";
 
 const SareeContext = createContext();
 
 function SareeProvider({ children }) {
+  const {addNotification} = useNotification();
   const [sarees, setSarees] = useState(
-    JSON.parse(localStorage.getItem("sarees")) || []
+    JSON.parse(localStorage.getItem("sarees")) || [],
   );
 
   useEffect(() => {
@@ -13,12 +15,35 @@ function SareeProvider({ children }) {
 
   function addSaree(newSaree) {
     setSarees((prev) => [...prev, newSaree]);
+    
+    addNotification({
+      id: Date.now(),
+
+      type: "new-saree",
+
+      data: {
+        id: newSaree.id,
+        name: newSaree.name,
+        price: newSaree.price,
+        fabric: newSaree.fabric,
+      },
+
+      senderRole: "admin",
+      receiverRole: "customer",
+
+      title: "New Saree Added",
+      message: `${newSaree.name} is now available`,
+
+      route: "/sarees",
+
+      read: false,
+
+      createdAt: new Date().toISOString(),
+    });
   }
 
   function deleteSaree(id) {
-    setSarees((prev) =>
-      prev.filter((saree) => saree.id !== id)
-    );
+    setSarees((prev) => prev.filter((saree) => saree.id !== id));
   }
 
   return (

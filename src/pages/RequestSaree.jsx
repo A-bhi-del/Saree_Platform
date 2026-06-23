@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useRequest } from "../context/RequestContext";
+import { useNotification } from "../context/NotificationContext";
 
 function RequestSaree() {
   const { addRequest } = useRequest();
+  const { addNotification } = useNotification();
 
   const [requestType, setRequestType] = useState("");
   const [requiredByDate, setRequiredByDate] = useState("");
@@ -13,7 +15,7 @@ function RequestSaree() {
   const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
   const [image, setImage] = useState("");
-  
+
   // Custom Alert message standard state
   const [successMsg, setSuccessMsg] = useState(false);
 
@@ -57,7 +59,7 @@ function RequestSaree() {
     setDescription("");
     setBudget("");
     setImage("");
-    
+
     // Trigger Success notification
     setSuccessMsg(true);
     setTimeout(() => setSuccessMsg(false), 5000);
@@ -66,14 +68,14 @@ function RequestSaree() {
   return (
     <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
-        
         {/* Header Section */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold font-serif text-rose-900 uppercase tracking-wide">
             Request a Saree
           </h2>
           <p className="text-sm text-gray-500 mt-2">
-            Share your dream design or restock preference, and our artisans will craft it for you.
+            Share your dream design or restock preference, and our artisans will
+            craft it for you.
           </p>
           <div className="h-0.5 w-16 bg-amber-500 mx-auto mt-3"></div>
         </div>
@@ -86,13 +88,13 @@ function RequestSaree() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          
           {/* Main Form Fields Layout (Grid for 2 columns on big screens) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
             {/* Request Type */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Request Type *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Request Type *
+              </label>
               <select
                 value={requestType}
                 onChange={(e) => setRequestType(e.target.value)}
@@ -106,7 +108,9 @@ function RequestSaree() {
 
             {/* Design Name */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Design / Pattern Name *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Design / Pattern Name *
+              </label>
               <input
                 type="text"
                 value={designName}
@@ -118,7 +122,9 @@ function RequestSaree() {
 
             {/* Required By Date */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Required By Date *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Required By Date *
+              </label>
               <input
                 type="date"
                 value={requiredByDate}
@@ -129,7 +135,9 @@ function RequestSaree() {
 
             {/* Quantity */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Quantity Needed *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Quantity Needed *
+              </label>
               <input
                 type="number"
                 value={quantity}
@@ -142,7 +150,9 @@ function RequestSaree() {
 
             {/* Fabric */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Fabric Material *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Fabric Material *
+              </label>
               <input
                 type="text"
                 value={fabric}
@@ -154,7 +164,9 @@ function RequestSaree() {
 
             {/* Color */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Color / Shade *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Color / Shade *
+              </label>
               <input
                 type="text"
                 value={color}
@@ -166,7 +178,9 @@ function RequestSaree() {
 
             {/* Budget */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Maximum Budget (₹) *</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Maximum Budget (₹) *
+              </label>
               <input
                 type="number"
                 value={budget}
@@ -178,7 +192,9 @@ function RequestSaree() {
 
             {/* Reference Image URL */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Reference Image URL</label>
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                Reference Image URL
+              </label>
               <input
                 type="text"
                 value={image}
@@ -187,12 +203,13 @@ function RequestSaree() {
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all"
               />
             </div>
-
           </div>
 
           {/* Description - Takes full width row */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Specific Design Requirements / Description</label>
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              Specific Design Requirements / Description
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -211,7 +228,6 @@ function RequestSaree() {
               Submit Request
             </button>
           </div>
-
         </form>
       </div>
     </div>

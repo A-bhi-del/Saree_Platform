@@ -30,6 +30,7 @@ function AddSaree() {
       description,
       image,
     });
+    
     setName("");
     setFabric("");
     setPrice("");
