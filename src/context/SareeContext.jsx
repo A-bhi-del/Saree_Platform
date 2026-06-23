@@ -15,29 +15,22 @@ function SareeProvider({ children }) {
 
   function addSaree(newSaree) {
     setSarees((prev) => [...prev, newSaree]);
-    
+
     addNotification({
       id: Date.now(),
-
       type: "new-saree",
-
       data: {
         id: newSaree.id,
         name: newSaree.name,
         price: newSaree.price,
         fabric: newSaree.fabric,
       },
-
       senderRole: "admin",
       receiverRole: "customer",
-
       title: "New Saree Added",
       message: `${newSaree.name} is now available`,
-
       route: "/sarees",
-
       read: false,
-
       createdAt: new Date().toISOString(),
     });
   }
@@ -46,12 +39,17 @@ function SareeProvider({ children }) {
     setSarees((prev) => prev.filter((saree) => saree.id !== id));
   }
 
+  function updateSaree(updatedSaree){
+    setSarees((prev) => prev.map((saree) => saree.id === updatedSaree.id ? updatedSaree : saree));
+  }
+
   return (
     <SareeContext.Provider
       value={{
         sarees,
         addSaree,
         deleteSaree,
+        updateSaree,
       }}
     >
       {children}

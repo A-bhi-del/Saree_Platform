@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useFavourites } from "../context/FavouriteContext";
 import { useSaree } from "../context/SareeContext";
+import { useNavigate } from "react-router-dom";
 
 function Sarees() {
   const { addFavourites } = useFavourites();
@@ -11,6 +12,9 @@ function Sarees() {
   const [searchFabric, setSearchFabric] = useState("");
   const [searchMinimumPrice, setSearchMinimumPrice] = useState("");
   const [searchMaximumPrice, setSearchMaximumPrice] = useState("");
+  const [sortBy, setSortBy] = useState("");
+
+  const navigate = useNavigate();
 
   const filterSarees = sarees.filter((saree) => {
     const matchName =
@@ -35,67 +39,142 @@ function Sarees() {
     );
   });
 
+  const sortedSarees = [...filterSarees].sort((a, b) => {
+    if (sortBy === "priceLowToHigh") return a.price - b.price;
+    if (sortBy === "priceHighToLow") return b.price - a.price;
+    if (sortBy === "newest") {
+      return b.id - a.id;
+    }
+    return 0;
+  });
+
   const { role } = useAuth();
 
   if (sarees.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-gray-500 font-serif">
-        <h2 className="text-2xl font-semibold">No Sarees Available At The Moment</h2>
-        <p className="text-sm mt-2">Please check back later or contact admin.</p>
+        <h2 className="text-2xl font-semibold">
+          No Sarees Available At The Moment
+        </h2>
+        <p className="text-sm mt-2">
+          Please check back later or contact admin.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="bg-gray-50 min-h-screen px-4 md:px-12 py-8">
-      
       {/* Page Title */}
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-rose-900 font-serif uppercase tracking-wider">Our Exclusive Collection</h1>
+        <h1 className="text-3xl font-bold text-rose-900 font-serif uppercase tracking-wider">
+          Our Exclusive Collection
+        </h1>
         <div className="h-0.5 w-24 bg-amber-500 mx-auto mt-2"></div>
       </div>
 
       {/* Premium Filter Section */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-10">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Filter Catalog</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-          <input
-            type="text"
-            placeholder="Search by Name"
-            value={searchName}
-            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Search by Color"
-            value={searchColor}
-            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-            onChange={(e) => setSearchColor(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Search by Fabric"
-            value={searchFabric}
-            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-            onChange={(e) => setSearchFabric(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Min Price"
-            value={searchMinimumPrice}
-            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-            onChange={(e) => setSearchMinimumPrice(e.target.value)}
-          />
-          <input
-            type="number"
-            placeholder="Max Price"
-            value={searchMaximumPrice}
-            className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800"
-            onChange={(e) => setSearchMaximumPrice(e.target.value)}
-          />
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
+          Filter Catalog
+        </h3>
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-8">
+          {/* Filter Section Header */}
+          <div className="flex items-center gap-2 mb-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <span>🎛️ Filter & Sort Collection</span>
+          </div>
+
+          {/* Dynamic Grid Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* Name Filter */}
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-xs pointer-events-none text-gray-400">
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Search by Name"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
+                className="w-full pl-8 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all placeholder-gray-400 font-medium"
+              />
+            </div>
+
+            {/* Color Filter */}
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-xs pointer-events-none text-gray-400">
+                🎨
+              </span>
+              <input
+                type="text"
+                placeholder="Search by Color"
+                value={searchColor}
+                onChange={(e) => setSearchColor(e.target.value)}
+                className="w-full pl-8 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all placeholder-gray-400 font-medium"
+              />
+            </div>
+
+            {/* Fabric Filter */}
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-xs pointer-events-none text-gray-400">
+                🧵
+              </span>
+              <input
+                type="text"
+                placeholder="Search by Fabric"
+                value={searchFabric}
+                onChange={(e) => setSearchFabric(e.target.value)}
+                className="w-full pl-8 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all placeholder-gray-400 font-medium"
+              />
+            </div>
+
+            {/* Min Price Filter */}
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-xs pointer-events-none text-gray-400">
+                ₹
+              </span>
+              <input
+                type="number"
+                placeholder="Min Price"
+                value={searchMinimumPrice}
+                onChange={(e) => setSearchMinimumPrice(e.target.value)}
+                className="w-full pl-7 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all placeholder-gray-400 font-medium"
+              />
+            </div>
+
+            {/* Max Price Filter */}
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-xs pointer-events-none text-gray-400">
+                ₹
+              </span>
+              <input
+                type="number"
+                placeholder="Max Price"
+                value={searchMaximumPrice}
+                onChange={(e) => setSearchMaximumPrice(e.target.value)}
+                className="w-full pl-7 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all placeholder-gray-400 font-medium"
+              />
+            </div>
+
+            {/* Elegant Sort Dropdown */}
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3 flex items-center text-xs pointer-events-none text-gray-400">
+                ↕️
+              </span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full pl-8 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all text-gray-600 font-semibold cursor-pointer appearance-none"
+              >
+                <option value="">Sort By</option>
+                <option value="priceLowToHigh">Price: Low to High</option>
+                <option value="priceHighToLow">Price: High to Low</option>
+                <option value="newest">Newest First</option>
+              </select>
+            </div>
+          </div>
         </div>
-        
+
         {/* Clear Filter Button Area */}
         <div className="flex justify-end mt-4">
           <button
@@ -115,23 +194,27 @@ function Sarees() {
 
       {/* Saree Grid Section */}
       <div>
-        {filterSarees.length === 0 ? (
+        {sortedSarees.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl border border-dashed border-gray-200">
-            <h2 className="text-xl text-gray-500 font-medium">No Sarees Match Your Filters</h2>
-            <p className="text-sm text-gray-400 mt-1">Try resetting or tweaking the filter inputs.</p>
+            <h2 className="text-xl text-gray-500 font-medium">
+              No Sarees Match Your Filters
+            </h2>
+            <p className="text-sm text-gray-400 mt-1">
+              Try resetting or tweaking the filter inputs.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {filterSarees.map((saree) => (
-              <div 
-                key={saree.id} 
+            {sortedSarees.map((saree) => (
+              <div
+                key={saree.id}
                 className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100 flex flex-col group transition-all duration-300"
               >
                 {/* Product Image Box */}
                 <div className="relative overflow-hidden bg-gray-100 aspect-[3/4]">
-                  <img 
-                    src={saree.image} 
-                    alt={saree.name} 
+                  <img
+                    src={saree.image}
+                    alt={saree.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {/* Stock Status Badge */}
@@ -149,42 +232,59 @@ function Sarees() {
                 {/* Product Details Content */}
                 <div className="p-5 flex flex-col flex-grow">
                   <div className="flex justify-between items-start mb-1">
-                    <h3 className="text-base font-semibold text-gray-800 font-serif line-clamp-1">{saree.name}</h3>
-                    <span className="text-base font-bold text-rose-900">₹{saree.price}</span>
+                    <h3 className="text-base font-semibold text-gray-800 font-serif line-clamp-1">
+                      {saree.name}
+                    </h3>
+                    <span className="text-base font-bold text-rose-900">
+                      ₹{saree.price}
+                    </span>
                   </div>
-                  
+
                   {/* Color Details */}
                   <div className="flex items-center gap-1.5 mb-2">
                     <span className="text-xs text-gray-400">Color:</span>
-                    <span className="text-xs font-medium text-gray-600 capitalize">{saree.color}</span>
+                    <span className="text-xs font-medium text-gray-600 capitalize">
+                      {saree.color}
+                    </span>
                   </div>
 
                   <p className="text-xs text-gray-500 line-clamp-2 mb-4 flex-grow">
-                    {saree.description || "Beautifully crafted authentic traditional saree designed to match your elegance perfectly."}
+                    {saree.description ||
+                      "Beautifully crafted authentic traditional saree designed to match your elegance perfectly."}
                   </p>
 
                   {/* Actions Area */}
                   <div className="mt-auto pt-2 border-t border-gray-50 flex items-center justify-between gap-2">
                     {role === "customer" && (
-                      <button 
+                      <button
                         onClick={() => addFavourites(saree)}
                         className="w-full flex items-center justify-center gap-2 border border-rose-900 text-rose-900 hover:bg-rose-50 px-4 py-2 text-xs font-semibold rounded transition-colors duration-200"
                       >
                         ❤️ Add to Favourites
                       </button>
                     )}
-                    
+
                     {role === "admin" && (
-                      <button 
-                        onClick={() => deleteSaree(saree.id)}
-                        className="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 text-xs font-semibold rounded transition-colors duration-200"
-                      >
-                        Delete Saree
-                      </button>
+                      <div className="w-full flex gap-3 mt-4 pt-3 border-t border-gray-50">
+                        {/* Edit Button */}
+                        <button
+                          onClick={() => navigate(`/edit-saree/${saree.id}`)}
+                          className="w-1/2 flex items-center justify-center gap-1.5 border border-amber-200 text-amber-700 hover:bg-amber-50 px-4 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+                        >
+                          📝 Edit Item
+                        </button>
+
+                        {/* Delete Button */}
+                        <button
+                          onClick={() => deleteSaree(saree.id)}
+                          className="w-1/2 flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
-
               </div>
             ))}
           </div>

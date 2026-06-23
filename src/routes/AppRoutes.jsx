@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import RequestSaree from "../pages/RequestSaree";
 import Requests from "../pages/Requests";
 import FavouritePage from "../pages/FavouritePage";
+import EditSaree from "../pages/EditSaree";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -74,6 +75,8 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/edit-saree/:id" element={<ProtectedRoute allowedRole="admin"><EditSaree/></ProtectedRoute>} />
     </Routes>
   );
 }

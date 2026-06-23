@@ -6,7 +6,6 @@ function Login() {
   const { role, setRole } = useAuth();
   const navigate = useNavigate();
 
-  // Agar user pehle se logged in hai, toh use direct redirect kar do
   if (role === "admin") return <Navigate to="/admin" replace />;
   if (role === "customer") return <Navigate to="/customer" replace />;
 
@@ -20,7 +19,7 @@ function Login() {
         {/* Branding & Logo Area */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold font-serif text-rose-900 uppercase tracking-widest">
-            ZariSaree
+            Saree-Store
           </h1>
           <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mt-1">
             Boutique Hub Management
