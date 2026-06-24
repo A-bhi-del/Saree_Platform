@@ -78,7 +78,7 @@ function Sarees() {
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">
           Filter Catalog
         </h3>
-        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-8">
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm mb-4">
           {/* Filter Section Header */}
           <div className="flex items-center gap-2 mb-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
             <span>🎛️ Filter & Sort Collection</span>
@@ -176,7 +176,7 @@ function Sarees() {
         </div>
 
         {/* Clear Filter Button Area */}
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-2">
           <button
             onClick={() => {
               setSearchName("");
@@ -184,6 +184,7 @@ function Sarees() {
               setSearchFabric("");
               setSearchMinimumPrice("");
               setSearchMaximumPrice("");
+              setSortBy(""); // Added this fix to reset sorting state too
             }}
             className="text-xs font-semibold text-rose-900 hover:text-rose-950 underline underline-offset-4 cursor-pointer transition-colors"
           >
@@ -205,88 +206,113 @@ function Sarees() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {sortedSarees.map((saree) => (
-              <div
-                key={saree.id}
-                className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100 flex flex-col group transition-all duration-300"
-              >
-                {/* Product Image Box */}
-                <div className="relative overflow-hidden bg-gray-100 aspect-[3/4]">
-                  <img
-                    src={saree.image}
-                    alt={saree.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Stock Status Badge */}
-                  {saree.stock < 5 && (
-                    <span className="absolute top-3 left-3 bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm">
-                      Low Stock ({saree.stock})
-                    </span>
-                  )}
-                  {/* Fabric Tag overlay */}
-                  <span className="absolute bottom-3 right-3 bg-black/60 text-white text-[11px] font-medium px-2 py-0.5 rounded backdrop-blur-sm">
-                    {saree.fabric}
-                  </span>
-                </div>
+            {sortedSarees.map((saree) => {
+              const discountedPrice = Math.round(
+                saree.price - (saree.price * saree.discountPercentage) / 100
+              );
+              const hasDiscount = saree.discountPercentage > 0;
 
-                {/* Product Details Content */}
-                <div className="p-5 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start mb-1">
-                    <h3 className="text-base font-semibold text-gray-800 font-serif line-clamp-1">
-                      {saree.name}
-                    </h3>
-                    <span className="text-base font-bold text-rose-900">
-                      ₹{saree.price}
-                    </span>
-                  </div>
-
-                  {/* Color Details */}
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-xs text-gray-400">Color:</span>
-                    <span className="text-xs font-medium text-gray-600 capitalize">
-                      {saree.color}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-gray-500 line-clamp-2 mb-4 flex-grow">
-                    {saree.description ||
-                      "Beautifully crafted authentic traditional saree designed to match your elegance perfectly."}
-                  </p>
-
-                  {/* Actions Area */}
-                  <div className="mt-auto pt-2 border-t border-gray-50 flex items-center justify-between gap-2">
-                    {role === "customer" && (
-                      <button
-                        onClick={() => addFavourites(saree)}
-                        className="w-full flex items-center justify-center gap-2 border border-rose-900 text-rose-900 hover:bg-rose-50 px-4 py-2 text-xs font-semibold rounded transition-colors duration-200"
-                      >
-                        ❤️ Add to Favourites
-                      </button>
+              return (
+                <div
+                  key={saree.id}
+                  className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100 flex flex-col group transition-all duration-300"
+                >
+                  {/* Product Image Box */}
+                  <div className="relative overflow-hidden bg-gray-100 aspect-[3/4]">
+                    <img
+                      src={saree.image}
+                      alt={saree.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {/* Stock Status Badge */}
+                    {saree.stock < 5 && (
+                      <span className="absolute top-3 left-3 bg-red-50 text-red-600 border border-red-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-sm">
+                        Low Stock ({saree.stock})
+                      </span>
                     )}
+                    {/* Fabric Tag overlay */}
+                    <span className="absolute bottom-3 right-3 bg-black/60 text-white text-[11px] font-medium px-2 py-0.5 rounded backdrop-blur-sm">
+                      {saree.fabric}
+                    </span>
+                  </div>
 
-                    {role === "admin" && (
-                      <div className="w-full flex gap-3 mt-4 pt-3 border-t border-gray-50">
-                        {/* Edit Button */}
-                        <button
-                          onClick={() => navigate(`/edit-saree/${saree.id}`)}
-                          className="w-1/2 flex items-center justify-center gap-1.5 border border-amber-200 text-amber-700 hover:bg-amber-50 px-4 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
-                        >
-                          📝 Edit Item
-                        </button>
-
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => deleteSaree(saree.id)}
-                          className="w-1/2 flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
-                        >
-                          🗑️ Delete
-                        </button>
+                  {/* Product Details Content */}
+                  <div className="p-5 flex flex-col flex-grow">
+                    <div className="flex justify-between items-start gap-2 mb-2">
+                      <h3 className="text-base font-semibold text-gray-800 font-serif line-clamp-1 flex-grow">
+                        {saree.name}
+                      </h3>
+                      
+                      {/* Fixed Clean Stacked Price Section */}
+                      <div className="flex flex-col text-right min-w-[75px] flex-shrink-0">
+                        {hasDiscount ? (
+                          <>
+                            <span className="text-[11px] text-gray-400 line-through font-medium">
+                              ₹{saree.price}
+                            </span>
+                            <span className="text-sm font-bold text-rose-900 leading-none">
+                              ₹{discountedPrice}
+                            </span>
+                            <span className="text-[10px] text-amber-600 font-semibold mt-0.5">
+                              ({saree.discountPercentage}% OFF)
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-base font-bold text-rose-900">
+                            ₹{saree.price}
+                          </span>
+                        )}
                       </div>
-                    )}
+                    </div>
+
+                    {/* Color Details */}
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <span className="text-xs text-gray-400">Color:</span>
+                      <span className="text-xs font-medium text-gray-600 capitalize">
+                        {saree.color}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-500 line-clamp-2 mb-4 flex-grow">
+                      {saree.description ||
+                        "Beautifully crafted authentic traditional saree designed to match your elegance perfectly."}
+                    </p>
+
+                    {/* Actions Area */}
+                    <div className="mt-auto pt-2 border-t border-gray-50 flex flex-col gap-2">
+                      {role === "customer" && (
+                        <button
+                          onClick={() => addFavourites(saree)}
+                          className="w-full flex items-center justify-center gap-2 border border-rose-900 text-rose-900 hover:bg-rose-50 px-4 py-2 text-xs font-semibold rounded transition-colors duration-200 cursor-pointer"
+                        >
+                          ❤️ Add to Favourites
+                        </button>
+                      )}
+
+                      {role === "admin" && (
+                        <div className="w-full flex gap-3 mt-2">
+                          {/* Edit Button */}
+                          <button
+                            onClick={() => navigate(`/edit-saree/${saree.id}`)}
+                            className="w-1/2 flex items-center justify-center gap-1.5 border border-amber-200 text-amber-700 hover:bg-amber-50 px-4 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+                          >
+                            📝 Edit Item
+                          </button>
+
+                          {/* Delete Button */}
+                          <button
+                            onClick={() => deleteSaree(saree.id)}
+                            className="w-1/2 flex items-center justify-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-4 py-2 text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

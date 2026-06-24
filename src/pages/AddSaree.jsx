@@ -29,6 +29,7 @@ function AddSaree() {
       color,
       description,
       image,
+      discountPercentage: 0,
     });
     
     setName("");

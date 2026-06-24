@@ -3,19 +3,31 @@ import { useSaree } from "../context/SareeContext";
 import { useNavigate, useParams } from "react-router-dom";
 
 function EditSaree() {
-  const {id} = useParams();
+  const { id } = useParams();
   const { sarees, updateSaree } = useSaree();
 
   const saree = sarees.find((item) => item.id === Number(id));
 
-  const [name, setName] = useState(saree.name);
-  const [fabric, setFabric] = useState(saree.fabric);
-  const [price, setPrice] = useState(saree.price);
-  const [stock, setStock] = useState(saree.stock);
-  const [color, setColor] = useState(saree.color);
-  const [description, setDescription] = useState(saree.description);
-  const [image, setImage] = useState(saree.image);
+  // Safe Initialization using Optional Chaining (?.) to prevent app crashes
+  const [name, setName] = useState(saree?.name || "");
+  const [fabric, setFabric] = useState(saree?.fabric || "");
+  const [price, setPrice] = useState(saree?.price || "");
+  const [stock, setStock] = useState(saree?.stock || "");
+  const [color, setColor] = useState(saree?.color || "");
+  const [description, setDescription] = useState(saree?.description || "");
+  const [image, setImage] = useState(saree?.image || "");
+  const [discountPercentage, setDiscountPercentage] = useState(saree?.discountPercentage || 0);
+  
   const navigate = useNavigate();
+
+  // Guard Clause: If saree details aren't loaded from context yet, show a clean loader instead of crashing
+  if (!saree) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-gray-500 font-serif">
+        <h2 className="text-xl font-semibold animate-pulse">Loading Saree Details...</h2>
+      </div>
+    );
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -33,6 +45,7 @@ function EditSaree() {
       color,
       description,
       image,
+      discountPercentage: Number(discountPercentage),
     });
 
     navigate("/sarees");
@@ -48,7 +61,7 @@ function EditSaree() {
             Edit existing saree
           </h2>
           <p className="text-sm text-gray-500 mt-2">
-            Launch a new product into the catalog. Fill in the artisan specifications below.
+            Update the specifications, pricing, or stock details of this artisan piece below.
           </p>
           <div className="h-0.5 w-16 bg-amber-500 mx-auto mt-3"></div>
         </div>
@@ -131,6 +144,19 @@ function EditSaree() {
               />
             </div>
 
+            {/* Discount Percentage */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider">Discount Percentage (%)</label>
+              <input
+                value={discountPercentage}
+                type="number"
+                min="0"
+                max="100"
+                onChange={(e) => setDiscountPercentage(e.target.value)}
+                placeholder="Enter discount percentage"
+                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-rose-800 focus:border-rose-800 transition-all"
+              />
+            </div>
           </div>
 
           {/* Saree Description - Full Row */}
@@ -151,7 +177,7 @@ function EditSaree() {
               type="submit"
               className="w-full bg-rose-900 hover:bg-rose-950 text-white font-semibold text-sm uppercase tracking-widest py-3 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
             >
-              Edit & Publish Item
+              Update & Save Changes
             </button>
           </div>
 

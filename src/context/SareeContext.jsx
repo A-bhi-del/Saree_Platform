@@ -4,7 +4,7 @@ import { useNotification } from "./NotificationContext";
 const SareeContext = createContext();
 
 function SareeProvider({ children }) {
-  const {addNotification} = useNotification();
+  const { addNotification } = useNotification();
   const [sarees, setSarees] = useState(
     JSON.parse(localStorage.getItem("sarees")) || [],
   );
@@ -39,8 +39,39 @@ function SareeProvider({ children }) {
     setSarees((prev) => prev.filter((saree) => saree.id !== id));
   }
 
-  function updateSaree(updatedSaree){
-    setSarees((prev) => prev.map((saree) => saree.id === updatedSaree.id ? updatedSaree : saree));
+  function updateSaree(updatedSaree) {
+    setSarees((prev) =>
+      prev.map((saree) =>
+        saree.id === updatedSaree.id ? updatedSaree : saree,
+      ),
+    );
+
+    const oldSaree = sarees.find((saree) => saree.id === updatedSaree.id);
+
+    if (oldSaree.discountPercentage !== updatedSaree.discountPercentage) {
+      addNotification({
+        type: "discount",
+
+        data: {
+          sareeId: updatedSaree.id,
+          sareeName: updatedSaree.name,
+          discountPercentage: updatedSaree.discountPercentage,
+        },
+
+        senderRole: "admin",
+        receiverRole: "customer",
+
+        title: "Discount Added",
+
+        message: `${updatedSaree.name} is now ${updatedSaree.discountPercentage}% off`,
+
+        route: "/sarees",
+
+        read: false,
+
+        createdAt: new Date().toISOString(),
+      });
+    }
   }
 
   return (
