@@ -10,6 +10,8 @@ import RequestSaree from "../pages/RequestSaree";
 import Requests from "../pages/Requests";
 import FavouritePage from "../pages/FavouritePage";
 import EditSaree from "../pages/EditSaree";
+import SalePage from "../pages/SalePage";
+import CreateSale from "../pages/CreateSale";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -75,8 +77,33 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      
+      <Route
+        path="/sale-page"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <SalePage />
+          </ProtectedRoute>
+        }
+      />
 
-      <Route path="/edit-saree/:id" element={<ProtectedRoute allowedRole="admin"><EditSaree/></ProtectedRoute>} />
+      <Route
+        path="/add-sale"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <CreateSale />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/edit-saree/:id"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <EditSaree />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

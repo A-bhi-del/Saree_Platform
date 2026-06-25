@@ -8,6 +8,7 @@ import { RequestProvider } from "./context/RequestContext.jsx";
 import { FavouriteProvider } from "./context/FavouriteContext.jsx";
 import "./index.css";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
+import { SaleProvider } from "./context/SaleContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -16,7 +17,9 @@ createRoot(document.getElementById("root")).render(
         <SareeProvider>
           <RequestProvider>
             <FavouriteProvider>
-              <App />
+              <SaleProvider>
+                <App />
+              </SaleProvider>
             </FavouriteProvider>
           </RequestProvider>
         </SareeProvider>

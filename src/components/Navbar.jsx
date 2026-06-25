@@ -101,7 +101,7 @@ function Navbar() {
                           {!notification.read && (
                             <button
                               onClick={(e) => {
-                                e.stopPropagation(); 
+                                e.stopPropagation();
                                 markAsRead(notification.id);
                               }}
                               title="Mark as read"
@@ -112,7 +112,7 @@ function Navbar() {
                           )}
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); 
+                              e.stopPropagation();
                               removeNotification(notification.id);
                             }}
                             title="Delete notification"
@@ -215,6 +215,12 @@ function Navbar() {
               className="hover:text-rose-900 border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200"
             >
               Requests
+            </Link>
+            <Link
+              to="/sale-page"
+              className="hover:text-rose-900 border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200"
+            >
+              Sales
             </Link>
           </>
         )}
