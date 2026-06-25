@@ -48,8 +48,12 @@ function SaleProvider({ children }) {
     );
   }
 
+  function removeSale(id){
+    setSale((prev) => prev.filter((s) => s.id !== id));
+  }
+
   return (
-    <SaleContext.Provider value={{ sale, addSale, toggleSale }}>
+    <SaleContext.Provider value={{ sale, addSale, toggleSale, removeSale }}>
       {children}
     </SaleContext.Provider>
   );

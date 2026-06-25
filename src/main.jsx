@@ -9,6 +9,7 @@ import { FavouriteProvider } from "./context/FavouriteContext.jsx";
 import "./index.css";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import { SaleProvider } from "./context/SaleContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -18,7 +19,9 @@ createRoot(document.getElementById("root")).render(
           <RequestProvider>
             <FavouriteProvider>
               <SaleProvider>
-                <App />
+                <ThemeProvider>
+                  <App/>
+                </ThemeProvider>
               </SaleProvider>
             </FavouriteProvider>
           </RequestProvider>
