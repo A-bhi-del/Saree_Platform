@@ -18,6 +18,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Login setRole={setRole} />} />
+      
       <Route
         path="/admin"
         element={
@@ -44,10 +45,6 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-
-      {/* <Route path="/admin" element={<AdminDashboard />} /> */}
-      {/* <Route path="/admin/add-saree" element={<AddSaree />} /> */}
-      {/* <Route path="/customer" element={<CustomerDashboard />} /> */}
 
       <Route path="/sarees" element={<Sarees />} />
 
@@ -77,7 +74,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      
+
       <Route
         path="/sale-page"
         element={
