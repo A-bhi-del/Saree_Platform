@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import Login from "../pages/Login";
 import AdminDashboard from "../pages/AdminDashboard";
 import AddSaree from "../pages/AddSaree";
 import CustomerDashboard from "../pages/CustomerDashboard";
@@ -12,13 +11,16 @@ import FavouritePage from "../pages/FavouritePage";
 import EditSaree from "../pages/EditSaree";
 import SalePage from "../pages/SalePage";
 import CreateSale from "../pages/CreateSale";
+import Register from "../pages/Register";
+import RoleSelection from "../pages/RoleSelection";
+import Login from "../pages/Login";
 
 function AppRoutes() {
   const { setRole } = useAuth();
   return (
     <Routes>
-      <Route path="/" element={<Login setRole={setRole} />} />
-      
+      <Route path="/" element={<RoleSelection setRole={setRole} />} />
+      <Route path="/login" element={<Login />} />
       <Route
         path="/admin"
         element={
@@ -101,6 +103,7 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }

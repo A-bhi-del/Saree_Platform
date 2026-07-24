@@ -1,136 +1,257 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 function Login() {
-  const { role, setRole } = useAuth();
-  const navigate = useNavigate();
+  const { role, login } = useAuth();
   const { theme } = useTheme();
+  const navigate = useNavigate();
 
   const isDark = theme === "dark";
+  const isAdmin = role === "admin";
 
-  if (role === "admin") return <Navigate to="/admin" replace />;
-  if (role === "customer") return <Navigate to="/customer" replace />;
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setError("");
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setToast("");
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email: formData.email,
+          password: formData.password,
+          role: role || "customer",
+        }
+      );
+
+      const payload = response.data?.message; 
+      const user = payload?.user;
+      const token = payload?.token;
+
+      if (!user || !token) {
+        setError("Invalid response structure from server!");
+        return;
+      }
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (login) {
+        login(user, token);
+      }
+
+      if (user?.role === "admin" || isAdmin) {
+        setToast("Login successful! Redirecting to Admin Panel...");
+        setTimeout(() => navigate("/admin"), 1200);
+      } else if (user?.role === "customer") {
+        setToast("Login successful! Redirecting to Customer Panel...");
+        setTimeout(() => navigate("/customer"), 1200);
+      } else {
+        setError("User role mismatch! Redirecting...");
+        setTimeout(() => navigate("/"), 2000);
+      }
+
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || err.message || "Invalid credentials. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className={`min-h-[calc(100vh-70px)] flex items-center justify-center p-4 transition-colors duration-300 ${
-      isDark 
-        ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" 
-        : "bg-gradient-to-br from-rose-50 via-white to-amber-50/30"
-    }`}>
-      <div className={`w-full max-w-md rounded-2xl border p-8 md:p-10 relative overflow-hidden transition-all duration-300 ${
-        isDark 
-          ? "bg-slate-900 border-slate-800 shadow-2xl shadow-black/40" 
-          : "bg-white border-gray-100 shadow-xl shadow-gray-200/50"
-      }`}>
-        
-        {/* Decorative Top Accent Line */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-rose-900 to-amber-500"></div>
-
-        {/* Branding & Logo Area */}
-        <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold font-serif uppercase tracking-widest ${
-            isDark ? "text-rose-400" : "text-rose-900"
-          }`}>
-            Saree-Store
-          </h1>
-          <p className={`text-xs font-medium uppercase tracking-wider mt-1 ${isDark ? "text-slate-500" : "text-gray-400"}`}>
-            Boutique Hub Management
-          </p>
-          <div className="h-0.5 w-12 bg-amber-500 mx-auto mt-3"></div>
+    <>
+      {/* Toast Notification */}
+      {toast && typeof toast === "string" && (
+        <div className="fixed top-5 right-5 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl bg-emerald-600 text-white font-medium text-sm border border-emerald-400/40 animate-bounce">
+          <span className="bg-white/20 p-1 rounded-full text-xs">✓</span>
+          <span>{toast}</span>
         </div>
+      )}
 
-        {/* Informative Subtext */}
-        <div className="text-center mb-8">
-          <h2 className={`text-lg font-semibold font-serif ${isDark ? "text-slate-200" : "text-gray-800"}`}>
-            Welcome Back Portal
-          </h2>
-          <p className={`text-xs mt-1 ${isDark ? "text-slate-400" : "text-gray-500"}`}>
-            Please select your operational role to enter the dashboard system.
-          </p>
-        </div>
-
-        {/* Action Buttons Container */}
-        <div className="space-y-4">
-          
-          {/* Customer Login Option Card */}
-          <button
-            onClick={() => {
-              setRole("customer");
-              navigate("/customer");
-            }}
-            className={`w-full group text-left border p-4 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm ${
-              isDark 
-                ? "border-slate-800 hover:border-rose-500 hover:bg-rose-950/20" 
-                : "border-gray-200 hover:border-rose-900 hover:bg-rose-50/30"
+      <div
+        className={`min-h-[calc(100vh-70px)] flex items-center justify-center p-4 transition-colors duration-300 ${
+          isDark
+            ? "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
+            : "bg-gradient-to-br from-rose-50 via-white to-amber-50/30"
+        }`}
+      >
+        <div
+          className={`w-full max-w-md rounded-2xl border p-6 md:p-8 relative overflow-hidden transition-all duration-300 ${
+            isDark
+              ? "bg-slate-900/90 border-slate-800 shadow-2xl shadow-black/50 backdrop-blur-md"
+              : "bg-white/90 border-gray-100 shadow-xl shadow-gray-200/50 backdrop-blur-md"
+          }`}
+        >
+          {/* Top Line Accent */}
+          <div
+            className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${
+              isAdmin
+                ? "from-amber-600 to-yellow-400"
+                : "from-rose-600 to-amber-500"
             }`}
-          >
+          ></div>
+
+          {/* Header */}
+          <div className="text-center mb-6">
+            <span
+              className={`inline-block text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full mb-2 ${
+                isAdmin
+                  ? isDark
+                    ? "bg-amber-950/80 text-amber-400 border border-amber-800/50"
+                    : "bg-amber-50 text-amber-700 border border-amber-200"
+                  : isDark
+                  ? "bg-rose-950/80 text-rose-400 border border-rose-800/50"
+                  : "bg-rose-50 text-rose-800 border border-rose-200"
+              }`}
+            >
+              {isAdmin ? "⚙️ Admin Portal" : "🛍️ Welcome Back"}
+            </span>
+
+            <h2
+              className={`text-2xl font-bold font-serif ${
+                isDark ? "text-slate-100" : "text-gray-900"
+              }`}
+            >
+              Sign In to Account
+            </h2>
+            <p
+              className={`text-xs mt-1 ${
+                isDark ? "text-slate-400" : "text-gray-500"
+              }`}
+            >
+              Enter your email and password to access your dashboard
+            </p>
+          </div>
+
+          {/* Error Message Alert */}
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs text-center font-medium">
+              ⚠️ {error}
+            </div>
+          )}
+
+          {/* Sign In Form */}
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <span className={`block text-sm font-bold transition-colors ${
-                isDark ? "text-slate-200 group-hover:text-rose-400" : "text-gray-800 group-hover:text-rose-900"
-              }`}>
-                Enter as Customer
-              </span>
-              <span className={`block text-xs mt-0.5 transition-colors ${
-                isDark ? "text-slate-500 group-hover:text-slate-400" : "text-gray-400 group-hover:text-gray-500"
-              }`}>
-                Browse collection, request designs & favorites
-              </span>
+              <label
+                className={`block text-xs font-semibold mb-1 ${
+                  isDark ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="john@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none transition-all ${
+                  isDark
+                    ? "bg-slate-950/60 border-slate-800 text-slate-100 focus:border-rose-500"
+                    : "bg-gray-50/50 border-gray-200 text-gray-900 focus:border-rose-800"
+                }`}
+              />
             </div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-              isDark 
-                ? "bg-rose-950/60 text-rose-400 group-hover:bg-rose-500 group-hover:text-white" 
-                : "bg-rose-50 text-rose-900 group-hover:bg-rose-900 group-hover:text-white"
-            }`}>
-              🛍️
-            </div>
-          </button>
 
-          {/* Admin Login Option Card */}
-          <button
-            onClick={() => {
-              setRole("admin");
-              navigate("/admin");
-            }}
-            className={`w-full group text-left border p-4 rounded-xl flex items-center justify-between transition-all duration-200 cursor-pointer shadow-sm ${
-              isDark 
-                ? "border-slate-800 hover:border-amber-500 hover:bg-amber-950/20" 
-                : "border-gray-200 hover:border-amber-600 hover:bg-amber-50/20"
-            }`}
-          >
             <div>
-              <span className={`block text-sm font-bold transition-colors ${
-                isDark ? "text-slate-200 group-hover:text-amber-400" : "text-gray-800 group-hover:text-amber-700"
-              }`}>
-                Access Admin Terminal
-              </span>
-              <span className={`block text-xs mt-0.5 transition-colors ${
-                isDark ? "text-slate-500 group-hover:text-slate-400" : "text-gray-400 group-hover:text-gray-500"
-              }`}>
-                Manage sarees inventory & approve requests
-              </span>
+              <label
+                className={`block text-xs font-semibold mb-1 ${
+                  isDark ? "text-slate-300" : "text-gray-700"
+                }`}
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                required
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none transition-all ${
+                  isDark
+                    ? "bg-slate-950/60 border-slate-800 text-slate-100 focus:border-rose-500"
+                    : "bg-gray-50/50 border-gray-200 text-gray-900 focus:border-rose-800"
+                }`}
+              />
             </div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-              isDark 
-                ? "bg-amber-950/60 text-amber-400 group-hover:bg-amber-500 group-hover:text-white" 
-                : "bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white"
-            }`}>
-              ⚙️
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 px-4 mt-2 rounded-xl text-sm font-bold shadow-md transition-all ${
+                isAdmin
+                  ? "bg-gradient-to-r from-amber-600 to-amber-500 text-slate-950 hover:opacity-90"
+                  : "bg-gradient-to-r from-rose-900 to-rose-800 text-white hover:opacity-90"
+              } disabled:opacity-50`}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+
+          {/* Register Link & Navigation */}
+          <div className="mt-6 text-center space-y-3 pt-4 border-t border-slate-800/20">
+            <p
+              className={`text-xs ${
+                isDark ? "text-slate-400" : "text-gray-600"
+              }`}
+            >
+              Don't have an account yet?{" "}
+              <Link
+                to="/register"
+                className={`font-bold hover:underline transition-colors ${
+                  isAdmin
+                    ? isDark
+                      ? "text-amber-400"
+                      : "text-amber-700"
+                    : isDark
+                    ? "text-rose-400"
+                    : "text-rose-900"
+                }`}
+              >
+                Create New Account
+              </Link>
+            </p>
+
+            <div>
+              <Link
+                to="/"
+                className={`text-[11px] font-medium hover:underline ${
+                  isDark ? "text-slate-500" : "text-gray-400"
+                }`}
+              >
+                ← Back to Role Selection
+              </Link>
             </div>
-          </button>
-
+          </div>
         </div>
-
-        {/* Minimalist Footer */}
-        <div className={`mt-8 pt-5 border-t text-center text-[11px] ${
-          isDark ? "border-slate-800 text-slate-500" : "border-gray-100 text-gray-400"
-        }`}>
-          Secure Store Operations &copy; {new Date().getFullYear()} ZariSaree Inc.
-        </div>
-
       </div>
-    </div>
+    </>
   );
 }
 
