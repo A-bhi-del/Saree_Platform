@@ -19,9 +19,19 @@ function Navbar() {
     (noti) => noti.read === false,
   ).length;
 
-  function handleLogout() {
-    setRole(null);
-    navigate("/");
+  async function handleLogout() {
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Logout API error:", error);
+    } finally {
+      localStorage.removeItem("user");
+      setRole(null);
+      navigate("/");
+    }
   }
 
   return (
@@ -37,7 +47,9 @@ function Navbar() {
         <Link
           to="/"
           className={`text-2xl font-bold tracking-widest uppercase font-serif transition-colors ${
-            theme === "dark" ? "text-rose-400 hover:text-rose-300" : "text-rose-900"
+            theme === "dark"
+              ? "text-rose-400 hover:text-rose-300"
+              : "text-rose-900"
           }`}
         >
           Saree-Store
@@ -50,7 +62,9 @@ function Navbar() {
         <Link
           to="/sarees"
           className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-            theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+            theme === "dark"
+              ? "text-slate-200 hover:text-rose-400"
+              : "text-gray-700"
           }`}
         >
           Sarees
@@ -62,7 +76,9 @@ function Navbar() {
             <Link
               to="/customer"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Dashboard
@@ -70,7 +86,9 @@ function Navbar() {
             <Link
               to="/favourites-page"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Favourites
@@ -78,7 +96,9 @@ function Navbar() {
             <Link
               to="/request-saree"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Add Request
@@ -92,7 +112,9 @@ function Navbar() {
             <Link
               to="/admin"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Admin Panel
@@ -100,7 +122,9 @@ function Navbar() {
             <Link
               to="/admin/add-saree"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Add Saree
@@ -108,7 +132,9 @@ function Navbar() {
             <Link
               to="/request"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Requests
@@ -116,7 +142,9 @@ function Navbar() {
             <Link
               to="/sale-page"
               className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
-                theme === "dark" ? "text-slate-200 hover:text-rose-400" : "text-gray-700"
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
               }`}
             >
               Sales
@@ -129,7 +157,9 @@ function Navbar() {
           <button
             onClick={() => setShowNotifications(!showNotifications)}
             className={`relative p-0.5 text-xl transition-colors focus:outline-none cursor-pointer ${
-              theme === "dark" ? "text-slate-300 hover:text-rose-400" : "hover:text-rose-900 text-gray-700"
+              theme === "dark"
+                ? "text-slate-300 hover:text-rose-400"
+                : "hover:text-rose-900 text-gray-700"
             }`}
           >
             🔔
@@ -152,10 +182,14 @@ function Navbar() {
               {/* Dropdown Header */}
               <div
                 className={`px-4 py-3 border-b flex justify-between items-center ${
-                  theme === "dark" ? "bg-slate-800/50 border-slate-700" : "bg-rose-50/50 border-gray-100"
+                  theme === "dark"
+                    ? "bg-slate-800/50 border-slate-700"
+                    : "bg-rose-50/50 border-gray-100"
                 }`}
               >
-                <span className={`font-serif font-bold text-sm ${theme === "dark" ? "text-rose-400" : "text-rose-950"}`}>
+                <span
+                  className={`font-serif font-bold text-sm ${theme === "dark" ? "text-rose-400" : "text-rose-950"}`}
+                >
                   Notifications
                 </span>
                 {unread_count > 0 && (
@@ -185,7 +219,9 @@ function Navbar() {
                         setShowNotifications(false);
                       }}
                       className={`p-4 transition-colors cursor-pointer text-left flex flex-col gap-1 relative group/item ${
-                        theme === "dark" ? "hover:bg-slate-700/50" : "hover:bg-rose-50/30"
+                        theme === "dark"
+                          ? "hover:bg-slate-700/50"
+                          : "hover:bg-rose-50/30"
                       } ${
                         !notification.read
                           ? theme === "dark"
@@ -203,8 +239,8 @@ function Navbar() {
                                 ? "text-rose-400"
                                 : "text-rose-900"
                               : theme === "dark"
-                              ? "text-slate-300"
-                              : "text-gray-800"
+                                ? "text-slate-300"
+                                : "text-gray-800"
                           }`}
                         >
                           {notification.title}
@@ -237,40 +273,51 @@ function Navbar() {
                       </div>
 
                       {/* Dynamic Content Details */}
-                      {notification.type === "new-saree" && notification.data?.name && (
-                        <div
-                          className={`text-[11px] font-medium px-2 py-0.5 rounded w-max ${
-                            theme === "dark" ? "text-rose-300 bg-rose-950/40" : "text-rose-950 bg-rose-50/60"
-                          }`}
-                        >
-                          ✨ New Stock: {notification.data.name}
-                        </div>
-                      )}
+                      {notification.type === "new-saree" &&
+                        notification.data?.name && (
+                          <div
+                            className={`text-[11px] font-medium px-2 py-0.5 rounded w-max ${
+                              theme === "dark"
+                                ? "text-rose-300 bg-rose-950/40"
+                                : "text-rose-950 bg-rose-50/60"
+                            }`}
+                          >
+                            ✨ New Stock: {notification.data.name}
+                          </div>
+                        )}
 
-                      {notification.type === "request" && notification.data?.designName && (
-                        <div
-                          className={`text-[11px] font-medium px-2 py-0.5 rounded w-max ${
-                            theme === "dark" ? "text-amber-300 bg-amber-950/40" : "text-amber-950 bg-amber-50/60"
-                          }`}
-                        >
-                          🧵 Request item: {notification.data.designName}
-                        </div>
-                      )}
+                      {notification.type === "request" &&
+                        notification.data?.designName && (
+                          <div
+                            className={`text-[11px] font-medium px-2 py-0.5 rounded w-max ${
+                              theme === "dark"
+                                ? "text-amber-300 bg-amber-950/40"
+                                : "text-amber-950 bg-amber-50/60"
+                            }`}
+                          >
+                            🧵 Request item: {notification.data.designName}
+                          </div>
+                        )}
 
                       {/* Main Message Body */}
-                      <p className={`text-[11px] line-clamp-2 font-normal leading-relaxed mt-0.5 ${
-                        theme === "dark" ? "text-slate-400" : "text-gray-500"
-                      }`}>
+                      <p
+                        className={`text-[11px] line-clamp-2 font-normal leading-relaxed mt-0.5 ${
+                          theme === "dark" ? "text-slate-400" : "text-gray-500"
+                        }`}
+                      >
                         {notification.message}
                       </p>
 
                       {/* Structured Localized Timestamp */}
                       <span className="text-[9px] text-gray-400 mt-1 self-end font-medium">
-                        {new Date(notification.createdAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(notification.createdAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          },
+                        )}
                       </span>
                     </div>
                   ))
@@ -284,9 +331,13 @@ function Navbar() {
         <button
           onClick={toggleTheme}
           className={`p-2 rounded-full transition-all duration-200 cursor-pointer text-base hover:scale-110 ${
-            theme === "dark" ? "bg-slate-800 text-amber-400 hover:bg-slate-700" : "bg-gray-100 text-slate-700 hover:bg-gray-200"
+            theme === "dark"
+              ? "bg-slate-800 text-amber-400 hover:bg-slate-700"
+              : "bg-gray-100 text-slate-700 hover:bg-gray-200"
           }`}
-          title={theme === "dark" ? "Switch to light Mode" : "Switch to dark Mode"}
+          title={
+            theme === "dark" ? "Switch to light Mode" : "Switch to dark Mode"
+          }
         >
           {theme === "dark" ? "☀️" : "🌙"}
         </button>

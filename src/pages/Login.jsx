@@ -3,9 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useSaree } from "../context/SareeContext";
 
 function Login() {
   const { role, login } = useAuth();
+  const {getSarees} = useSaree();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
@@ -42,24 +44,31 @@ function Login() {
           email: formData.email,
           password: formData.password,
           role: role || "customer",
-        }
+        },
+        {
+          withCredentials: true,
+        },
       );
 
-      const payload = response.data?.message; 
-      const user = payload?.user;
-      const token = payload?.token;
+      const user = response.data.message.user;
 
-      if (!user || !token) {
+      if (!user) {
+        setError("Invalid response");
+        return;
+      }
+
+      if (!user) {
         setError("Invalid response structure from server!");
         return;
       }
 
-      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
       if (login) {
-        login(user, token);
+        login(user);
       }
+
+      await getSarees();
 
       if (user?.role === "admin" || isAdmin) {
         setToast("Login successful! Redirecting to Admin Panel...");
@@ -71,10 +80,11 @@ function Login() {
         setError("User role mismatch! Redirecting...");
         setTimeout(() => navigate("/"), 2000);
       }
-
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || err.message || "Invalid credentials. Please try again.";
+        err.response?.data?.message ||
+        err.message ||
+        "Invalid credentials. Please try again.";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -123,8 +133,8 @@ function Login() {
                     ? "bg-amber-950/80 text-amber-400 border border-amber-800/50"
                     : "bg-amber-50 text-amber-700 border border-amber-200"
                   : isDark
-                  ? "bg-rose-950/80 text-rose-400 border border-rose-800/50"
-                  : "bg-rose-50 text-rose-800 border border-rose-200"
+                    ? "bg-rose-950/80 text-rose-400 border border-rose-800/50"
+                    : "bg-rose-50 text-rose-800 border border-rose-200"
               }`}
             >
               {isAdmin ? "⚙️ Admin Portal" : "🛍️ Welcome Back"}
@@ -230,8 +240,8 @@ function Login() {
                       ? "text-amber-400"
                       : "text-amber-700"
                     : isDark
-                    ? "text-rose-400"
-                    : "text-rose-900"
+                      ? "text-rose-400"
+                      : "text-rose-900"
                 }`}
               >
                 Create New Account

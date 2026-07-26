@@ -82,6 +82,162 @@ function BannerTimer({ endDate, onExpire, isDark }) {
   );
 }
 
+function SareeCard({ saree, isDark, role, addFavourites, navigate, deleteSaree }) {
+  const imageList = Array.isArray(saree.images) && saree.images.length > 0
+    ? saree.images
+    : saree.image
+    ? [saree.image]
+    : ["https://placehold.co/400x500?text=No+Saree+Image"];
+
+  const [activeImgIdx, setActiveImgIdx] = useState(0);
+
+  const discountedPrice = Math.round(saree.price - (saree.price * saree.discountPercentage) / 100);
+  const hasDiscount = saree.discountPercentage > 0;
+
+  const handleNextImage = (e) => {
+    e.stopPropagation();
+    setActiveImgIdx((prev) => (prev === imageList.length - 1 ? 0 : prev + 1));
+  };
+
+  const handlePrevImage = (e) => {
+    e.stopPropagation();
+    setActiveImgIdx((prev) => (prev === 0 ? imageList.length - 1 : prev - 1));
+  };
+
+  return (
+    <div className={`rounded-2xl overflow-hidden shadow-sm hover:shadow-md border flex flex-col group transition-all duration-300 ${
+      isDark ? "bg-slate-900 border-slate-800/80" : "bg-white border-gray-100"
+    }`}>
+      {/* Image Gallery Container */}
+      <div className={`relative overflow-hidden aspect-[3/4] ${isDark ? "bg-slate-800" : "bg-gray-100"}`}>
+        <img 
+          src={imageList[activeImgIdx]} 
+          alt={saree.name} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "https://placehold.co/400x500?text=Image+Load+Failed";
+          }}
+        />
+
+        {/* Top Badges (Stock & Discount) */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+          {saree.stock < 5 && (
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border ${
+              isDark ? "bg-red-950/90 text-red-400 border-red-900/40" : "bg-red-50 text-red-600 border-red-100"
+            }`}>
+              Low Stock ({saree.stock})
+            </span>
+          )}
+          {hasDiscount && (
+            <span className="bg-amber-500 dark:bg-amber-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-sm">
+              {saree.discountPercentage}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* Fabric Badge */}
+        <span className={`absolute bottom-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-md z-10 ${
+          isDark ? "bg-slate-950/80 text-slate-200" : "bg-black/60 text-white"
+        }`}>
+          {saree.fabric}
+        </span>
+
+        {/* 📸 Multiple Images Controls (Shows if images > 1) */}
+        {imageList.length > 1 && (
+          <>
+            {/* Image Count Indicator */}
+            <span className="absolute top-3 right-3 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10 backdrop-blur-xs">
+              📷 {activeImgIdx + 1}/{imageList.length}
+            </span>
+
+            {/* Hover Next & Prev Buttons */}
+            <button 
+              onClick={handlePrevImage} 
+              className="absolute left-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-black/40 hover:bg-black/70 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+            >
+              ❮
+            </button>
+            <button 
+              onClick={handleNextImage} 
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-black/40 hover:bg-black/70 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+            >
+              ❯
+            </button>
+
+            {/* Bottom Dots Indicator */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+              {imageList.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveImgIdx(idx);
+                  }}
+                  className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                    activeImgIdx === idx ? "w-3 bg-white" : "w-1.5 bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Details Box */}
+      <div className="p-5 flex flex-col flex-grow">
+        <div className="flex justify-between items-start gap-3 mb-2">
+          <h3 className={`text-base font-bold font-serif line-clamp-1 flex-grow ${isDark ? "text-slate-100" : "text-gray-800"}`}>
+            {saree.name}
+          </h3>
+          <div className="flex flex-col text-right min-w-[80px]">
+            {hasDiscount ? (
+              <>
+                <span className={`text-[11px] line-through font-semibold ${isDark ? "text-slate-500" : "text-gray-400"}`}>₹{saree.price}</span>
+                <span className={`text-base font-extrabold leading-none ${isDark ? "text-rose-400" : "text-rose-900"}`}>₹{discountedPrice}</span>
+              </>
+            ) : (
+              <span className={`text-base font-extrabold ${isDark ? "text-rose-400" : "text-rose-900"}`}>₹{saree.price}</span>
+            )}
+          </div>
+        </div>
+        <p className={`text-xs line-clamp-2 mb-5 leading-relaxed flex-grow ${isDark ? "text-slate-400" : "text-gray-500"}`}>
+          {saree.description || "Authentic traditional handloom work."}
+        </p>
+        
+        {/* Action Buttons */}
+        <div className={`mt-auto pt-3 border-t ${isDark ? "border-slate-800/60" : "border-gray-50"}`}>
+          {role === "customer" && (
+            <button onClick={() => addFavourites(saree)} className={`w-full flex items-center justify-center gap-2 border px-4 py-2 text-xs font-bold uppercase rounded-xl transition-all cursor-pointer ${
+              isDark 
+                ? "border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-slate-950" 
+                : "border-rose-900 text-rose-900 hover:bg-rose-900 hover:text-white"
+            }`}>
+              ❤️ Add to Favourites
+            </button>
+          )}
+          {role === "admin" && (
+            <div className="w-full flex gap-3">
+              <button onClick={() => navigate(`/edit-saree/${saree._id || saree.id}`)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
+                isDark ? "border-amber-900/50 text-amber-400 hover:bg-amber-950/30" : "border-amber-200 text-amber-700 hover:bg-amber-50"
+              }`}>
+                📝 Edit
+              </button>
+              <button onClick={() => deleteSaree(saree._id || saree.id)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
+                isDark 
+                  ? "bg-red-950/40 hover:bg-red-900/30 text-red-400 border-red-900/40" 
+                  : "bg-red-50 hover:bg-red-100 text-red-600 border-red-100"
+              }`}>
+                🗑️ Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Sarees() {
   const { theme } = useTheme(); 
   const { addFavourites } = useFavourites();
@@ -100,18 +256,17 @@ function Sarees() {
 
   const isDark = theme === "dark";
 
-  // Active sales ko properly track karein
+  // Active sales tracker
   const activeSales = sale?.filter((s) => s.active === true) || [];
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
-  // Jab activeSales badle (jaise async database fetch ke baad), check karein index bounds se bahar na ho
   useEffect(() => {
     if (currentBannerIndex >= activeSales.length) {
       setCurrentBannerIndex(0);
     }
   }, [activeSales.length, currentBannerIndex]);
 
-  // 🔄 Automatic Banner Autoplay Logic (Har 5 Second me automatically badlega)
+  // Automatic Banner Autoplay Logic
   useEffect(() => {
     if (activeSales.length <= 1) return;
 
@@ -124,9 +279,8 @@ function Sarees() {
 
   const currentBanner = activeSales[currentBannerIndex];
 
-  // Functional Updates lagaye taaki stale state ka bug na aaye
   const nextBanner = (e) => {
-    e.stopPropagation(); // Event bubble out na ho
+    e.stopPropagation();
     setCurrentBannerIndex((prev) => (prev === activeSales.length - 1 ? 0 : prev + 1));
   };
 
@@ -217,7 +371,6 @@ function Sarees() {
 
           {activeSales.length > 1 && (
             <>
-              {/* Opacity zero standard ko hatakar group hover logic ko clean kiya taaki humesha responsive click pakad sake */}
               <button onClick={prevBanner} className={`absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full border flex items-center justify-center text-white text-sm backdrop-blur-sm cursor-pointer lg:opacity-0 group-hover/banner:opacity-100 transition-opacity duration-300 z-10 ${
                 isDark ? "bg-slate-800/80 hover:bg-slate-700 border-slate-700" : "bg-black/30 hover:bg-black/60 border-white/10"
               }`}>❮</button>
@@ -293,72 +446,17 @@ function Sarees() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {sortedSarees.map((saree) => {
-                  const discountedPrice = Math.round(saree.price - (saree.price * saree.discountPercentage) / 100);
-                  const hasDiscount = saree.discountPercentage > 0;
-
-                  return (
-                    <div key={saree.id} className={`rounded-2xl overflow-hidden shadow-sm hover:shadow-md border flex flex-col group transition-all duration-300 ${
-                      isDark ? "bg-slate-900 border-slate-800/80" : "bg-white border-gray-100"
-                    }`}>
-                      <div className={`relative overflow-hidden aspect-[3/4] ${isDark ? "bg-slate-800" : "bg-gray-100"}`}>
-                        <img src={saree.image} alt={saree.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                          {saree.stock < 5 && (
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border ${
-                              isDark ? "bg-red-950/90 text-red-400 border-red-900/40" : "bg-red-50 text-red-600 border-red-100"
-                            }`}>
-                              Low Stock ({saree.stock})
-                            </span>
-                          )}
-                          {hasDiscount && <span className="bg-amber-500 dark:bg-amber-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-sm">{saree.discountPercentage}% OFF</span>}
-                        </div>
-                        <span className={`absolute bottom-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-md ${
-                          isDark ? "bg-slate-950/80 text-slate-200" : "bg-black/60 text-white"
-                        }`}>{saree.fabric}</span>
-                      </div>
-
-                      <div className="p-5 flex flex-col flex-grow">
-                        <div className="flex justify-between items-start gap-3 mb-2">
-                          <h3 className={`text-base font-bold font-serif line-clamp-1 flex-grow ${isDark ? "text-slate-100" : "text-gray-800"}`}>{saree.name}</h3>
-                          <div className="flex flex-col text-right min-w-[80px]">
-                            {hasDiscount ? (
-                              <>
-                                <span className={`text-[11px] line-through font-semibold ${isDark ? "text-slate-500" : "text-gray-400"}`}>₹{saree.price}</span>
-                                <span className={`text-base font-extrabold leading-none ${isDark ? "text-rose-400" : "text-rose-900"}`}>₹{discountedPrice}</span>
-                              </>
-                            ) : (
-                              <span className={`text-base font-extrabold ${isDark ? "text-rose-400" : "text-rose-900"}`}>₹{saree.price}</span>
-                            )}
-                          </div>
-                        </div>
-                        <p className={`text-xs line-clamp-2 mb-5 leading-relaxed flex-grow ${isDark ? "text-slate-400" : "text-gray-500"}`}>{saree.description || "Authentic traditional handloom work."}</p>
-                        
-                        <div className={`mt-auto pt-3 border-t ${isDark ? "border-slate-800/60" : "border-gray-50"}`}>
-                          {role === "customer" && (
-                            <button onClick={() => addFavourites(saree)} className={`w-full flex items-center justify-center gap-2 border px-4 py-2 text-xs font-bold uppercase rounded-xl transition-all cursor-pointer ${
-                              isDark 
-                                ? "border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-slate-950" 
-                                : "border-rose-900 text-rose-900 hover:bg-rose-900 hover:text-white"
-                            }`}>❤️ Add to Favourites</button>
-                          )}
-                          {role === "admin" && (
-                            <div className="w-full flex gap-3">
-                              <button onClick={() => navigate(`/edit-saree/${saree.id}`)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
-                                isDark ? "border-amber-900/50 text-amber-400 hover:bg-amber-950/30" : "border-amber-200 text-amber-700 hover:bg-amber-50"
-                              }`}>📝 Edit</button>
-                              <button onClick={() => deleteSaree(saree.id)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
-                                isDark 
-                                  ? "bg-red-950/40 hover:bg-red-900/30 text-red-400 border-red-900/40" 
-                                  : "bg-red-50 hover:bg-red-100 text-red-600 border-red-100"
-                              }`}>🗑️ Delete</button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {sortedSarees.map((saree) => (
+                  <SareeCard 
+                    key={saree._id || saree.id}
+                    saree={saree}
+                    isDark={isDark}
+                    role={role}
+                    addFavourites={addFavourites}
+                    navigate={navigate}
+                    deleteSaree={deleteSaree}
+                  />
+                ))}
               </div>
             )}
           </div>
