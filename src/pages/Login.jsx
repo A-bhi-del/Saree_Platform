@@ -52,6 +52,8 @@ function Login() {
 
       const user = response.data.message.user;
 
+      console.log(response.data);
+
       if (!user) {
         setError("Invalid response");
         return;

@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
+import axios from "axios";
 
 function Navbar() {
   const { role, setRole } = useAuth();
@@ -19,12 +20,16 @@ function Navbar() {
     (noti) => noti.read === false,
   ).length;
 
+
   async function handleLogout() {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await axios.post(
+        "http://localhost:5000/api/auth/logout",
+        {},
+        {
+          withCredentials: true,
+        },
+      );
     } catch (error) {
       console.error("Logout API error:", error);
     } finally {
@@ -150,6 +155,21 @@ function Navbar() {
               Sales
             </Link>
           </>
+        )}
+
+        {/* 👤 Profile Link (Logged-in Users Only) */}
+        {role !== null && (
+          <Link
+            to="/profile"
+            className={`flex items-center gap-1.5 border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
+              theme === "dark"
+                ? "text-slate-200 hover:text-rose-400"
+                : "text-gray-700"
+            }`}
+            title="Go to Profile"
+          >
+            <span>👤</span> Profile
+          </Link>
         )}
 
         {/* Premium Notification Bell Wrapper */}
