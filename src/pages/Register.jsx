@@ -36,7 +36,6 @@ function Register() {
     }));
   };
 
-  // STEP 1: Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault();
     if (!formData.email) {
@@ -62,7 +61,6 @@ function Register() {
     }
   };
 
-  // STEP 2: Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     if (!otp) {
@@ -90,7 +88,6 @@ function Register() {
     }
   };
 
-  // STEP 3: Complete Full Registration
   const handleSubmit = async (e) => {
     e.preventDefault();
 

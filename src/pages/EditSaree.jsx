@@ -9,10 +9,10 @@ function EditSaree() {
   const { sarees, updateSaree } = useSaree();
 
   const saree = sarees?.find(
-    (item) => String(item._id || item.id) === String(id),
+    (item) => String(item._id || item.id) === String(id)
   );
 
-  console.log("Database se aaya Saree Object:", saree.images[0]);
+  // console.log(saree.images[0]);
 
   const [name, setName] = useState("");
   const [fabric, setFabric] = useState("");
@@ -21,7 +21,8 @@ function EditSaree() {
   const [color, setColor] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("");
+  
+  const [images, setImages] = useState([""]);
   const [discountPercentage, setDiscountPercentage] = useState(0);
 
   const navigate = useNavigate();
@@ -38,25 +39,36 @@ function EditSaree() {
       setDescription(saree.description || "");
 
       if (Array.isArray(saree.images) && saree.images.length > 0) {
-        setImage(saree.images[0]);
+        setImages(saree.images);
       } else if (saree.image) {
-        setImage(saree.image);
+        setImages([saree.image]);
       } else {
-        setImage("");
+        setImages([""]);
       }
 
       setDiscountPercentage(saree.discountPercentage || 0);
     }
   }, [saree]);
 
-  // console.log("URL Params ID:", id);
-  // console.log("Available Sarees from Context:", sarees);
+  const handleImageChange = (index, value) => {
+    const updatedImages = [...images];
+    updatedImages[index] = value;
+    setImages(updatedImages);
+  };
 
-  // const sareee = sarees?.find(
-  //   (item) => String(item._id || item.id) === String(id)
-  // );
-  // console.log("Found Saree:", sareee);
-  // Loading Guard Clause
+  const handleAddImageField = () => {
+    setImages([...images, ""]);
+  };
+
+  const handleRemoveImageField = (index) => {
+    if (images.length > 1) {
+      const updatedImages = images.filter((_, i) => i !== index);
+      setImages(updatedImages);
+    } else {
+      setImages([""]);
+    }
+  };
+
   if (!saree) {
     return (
       <div
@@ -82,8 +94,10 @@ function EditSaree() {
       return;
     }
 
-    const formattedImages =
-      image && image.trim().length > 0 ? [image.trim()] : [];
+    // Filter out empty spaces
+    const formattedImages = images
+      .map((url) => url.trim())
+      .filter((url) => url.length > 0);
 
     const updatedPayload = {
       id: saree._id || saree.id,
@@ -113,7 +127,6 @@ function EditSaree() {
           isDark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-100"
         }`}
       >
-        {/* Header Section */}
         <div className="text-center mb-8">
           <h2
             className={`text-3xl font-bold font-serif uppercase tracking-wide ${
@@ -127,22 +140,16 @@ function EditSaree() {
               isDark ? "text-slate-400" : "text-gray-500"
             }`}
           >
-            Update the specifications, pricing, or stock details of this artisan
-            piece below.
+            Update the specifications, pricing, or stock details of this artisan piece.
           </p>
           <div className="h-0.5 w-16 bg-amber-500 mx-auto mt-3"></div>
         </div>
 
-        {/* Product Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Saree Name */}
             <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
                 Saree/Design Name *
               </label>
               <input
@@ -151,20 +158,14 @@ function EditSaree() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Kanjeevaram Silk Pure Zari"
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                  isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
                 }`}
               />
             </div>
 
             {/* Fabric Material */}
             <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
                 Fabric Material *
               </label>
               <input
@@ -173,20 +174,14 @@ function EditSaree() {
                 onChange={(e) => setFabric(e.target.value)}
                 placeholder="e.g., Organza, Chanderi, Georgette"
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                  isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
                 }`}
               />
             </div>
 
             {/* Price */}
             <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
                 Retail Price (₹) *
               </label>
               <input
@@ -195,20 +190,14 @@ function EditSaree() {
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="e.g., 4999"
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                  isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
                 }`}
               />
             </div>
 
             {/* Stock Quantity */}
             <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
                 Stock Available *
               </label>
               <input
@@ -217,20 +206,14 @@ function EditSaree() {
                 onChange={(e) => setStock(e.target.value)}
                 placeholder="e.g., 15"
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                  isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
                 }`}
               />
             </div>
 
             {/* Color Shade */}
             <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
                 Color Shade *
               </label>
               <input
@@ -239,42 +222,14 @@ function EditSaree() {
                 onChange={(e) => setColor(e.target.value)}
                 placeholder="e.g., Mustard Yellow / Rani Pink"
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
-                }`}
-              />
-            </div>
-
-            {/* Image URL */}
-            <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
-                Saree Image URL
-              </label>
-              <input
-                value={image}
-                type="text"
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="Paste an online image link address"
-                className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                  isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
                 }`}
               />
             </div>
 
             {/* Discount Percentage */}
             <div className="flex flex-col gap-1.5">
-              <label
-                className={`text-xs font-semibold uppercase tracking-wider ${
-                  isDark ? "text-slate-400" : "text-gray-600"
-                }`}
-              >
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
                 Discount Percentage (%)
               </label>
               <input
@@ -285,21 +240,54 @@ function EditSaree() {
                 onChange={(e) => setDiscountPercentage(e.target.value)}
                 placeholder="Enter discount percentage"
                 className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                  isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
                 }`}
               />
             </div>
           </div>
 
+          {/* DYNAMIC MULTIPLE IMAGE URLS SECTION */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
+                Saree Image URLs
+              </label>
+              <button
+                type="button"
+                onClick={handleAddImageField}
+                className="text-xs font-semibold text-rose-500 hover:text-rose-600 cursor-pointer"
+              >
+                + Add Another Image
+              </button>
+            </div>
+
+            {images.map((imgUrl, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={imgUrl}
+                  onChange={(e) => handleImageChange(index, e.target.value)}
+                  placeholder={`Image URL ${index + 1}`}
+                  className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
+                    isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
+                  }`}
+                />
+                {images.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImageField(index)}
+                    className="px-3 py-2.5 text-xs font-medium text-red-500 border border-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-all cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
           {/* Product Description */}
           <div className="flex flex-col gap-1.5">
-            <label
-              className={`text-xs font-semibold uppercase tracking-wider ${
-                isDark ? "text-slate-400" : "text-gray-600"
-              }`}
-            >
+            <label className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}>
               Product Description
             </label>
             <textarea
@@ -308,9 +296,7 @@ function EditSaree() {
               placeholder="Describe the details..."
               rows="4"
               className={`w-full px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all resize-none ${
-                isDark
-                  ? "bg-slate-800 border-slate-700 text-slate-100"
-                  : "bg-gray-50 border-gray-200 text-gray-900"
+                isDark ? "bg-slate-800 border-slate-700 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900"
               }`}
             />
           </div>
@@ -320,9 +306,7 @@ function EditSaree() {
             <button
               type="submit"
               className={`w-full font-semibold text-sm uppercase tracking-widest py-3 px-6 rounded-lg shadow-sm transition-all duration-200 cursor-pointer text-white ${
-                isDark
-                  ? "bg-rose-950 hover:bg-rose-900"
-                  : "bg-rose-900 hover:bg-rose-950"
+                isDark ? "bg-rose-950 hover:bg-rose-900" : "bg-rose-900 hover:bg-rose-950"
               }`}
             >
               Update & Save Changes

@@ -223,7 +223,6 @@ function AddSaree() {
               />
             </div>
 
-            {/* 📸 Multiple Images Input Field & List */}
             <div className="flex flex-col gap-1.5 md:col-span-2">
               <label className={`text-xs font-semibold uppercase tracking-wider ${theme === "dark" ? "text-slate-400" : "text-gray-600"}`}>
                 Saree Images (Multiple URLs)

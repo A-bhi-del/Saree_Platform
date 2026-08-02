@@ -1,132 +1,215 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
+import axios from "axios";
 import { useNotification } from "./NotificationContext";
 
 const RequestContext = createContext();
 
-function RequestProvider({ children }) {
+const API = axios.create({
+  baseURL: "http://localhost:5000/api/requests",
+  withCredentials: true,
+});
+
+export function RequestProvider({ children }) {
   const { addNotification } = useNotification();
 
-  const [requests, setRequests] = useState(
-    JSON.parse(localStorage.getItem("requests")) || [],
-  );
+  const [requests, setRequests] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchRequests = useCallback(async (page = 1, limit = 10) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await API.get("/", {
+        params: { page, limit },
+      });
+
+      if (response.data.success) {
+        setRequests(response.data.data);
+        setPagination(response.data.pagination);
+      }
+    } catch (err) {
+      console.error("Error fetching requests:", err);
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to load requests."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("requests", JSON.stringify(requests));
-  }, [requests]);
+    fetchRequests();
+  }, [fetchRequests]);
 
-  function addRequest(newRequest) {
-    setRequests((prev) => [...prev, newRequest]);
+  const createRequest = async (requestData) => {
+    try {
+      const response = await API.post("/", requestData);
 
-    addNotification({
-      id: Date.now(),
+      await fetchRequests();
 
-      type: "request",
+      addNotification({
+        id: Date.now(),
 
-      data: {
-        id: newRequest.id,
-        designName: newRequest.designName,
-        budget: newRequest.budget,
-      },
+        type: "request",
 
-      senderRole: "customer",
-      receiverRole: "admin",
+        senderRole: "customer",
+        receiverRole: "admin",
 
-      title: "New Request",
-      message: `${newRequest.designName} request submitted`,
+        title: "New Request",
 
-      route: "/request",
+        message: `${requestData.designName} request submitted`,
 
-      read: false,
+        route: "/request",
 
-      createdAt: new Date().toISOString(),
-    });
-  }
+        read: false,
 
-  function approveRequest(ID) {
-    setRequests((prev) =>
-      prev.map((request) =>
-        request.id === ID ? { ...request, status: "approved" } : request,
-      ),
-    );
+        createdAt: new Date().toISOString(),
+      });
 
-    const request = requests.find((request) => request.id === ID);
-    if (!request) return;
-    addNotification({
-      id: Date.now(),
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
 
-      type: "request-approved",
+      throw new Error(
+        err.response?.data?.message ||
+          "Failed to submit request."
+      );
+    }
+  };
 
-      data: {
-        id: request.id,
-        designName: request.designName,
-        budget: request.budget,
-        status: "approved",
-      },
+  const updateStatus = async (
+    requestId,
+    status
+  ) => {
+    try {
+      const response = await API.patch(
+        `/${requestId}/status`,
+        { status }
+      );
 
-      route: "/customer",
+      await fetchRequests();
 
-      senderRole: "admin",
-      receiverRole: "customer",
+      if (status === "accepted") {
+        addNotification({
+          id: Date.now(),
 
-      title: "Request Approved",
+          type: "request-approved",
 
-      message: `${request.designName} request approved`,
+          senderRole: "admin",
+          receiverRole: "customer",
 
-      read: false,
+          title: "Request Approved",
 
-      createdAt: new Date().toISOString(),
-    });
-  }
+          message: "Your request has been approved.",
 
-  function rejectRequest(ID) {
-    setRequests((prev) =>
-      prev.map((request) =>
-        request.id === ID ? { ...request, status: "rejected" } : request,
-      ),
-    );
+          route: "/customer",
 
-    const request = requests.find((request) => request.id === ID);
+          read: false,
 
-    if (!request) return;
+          createdAt: new Date().toISOString(),
+        });
+      } else {
+        addNotification({
+          id: Date.now(),
 
-    addNotification({
-      id: Date.now(),
+          type: "request-rejected",
 
-      type: "request-rejected",
+          senderRole: "admin",
+          receiverRole: "customer",
 
-      data: {
-        id: request.id,
-        designName: request.designName,
-        budget: request.budget,
-        status: "rejected",
-      },
+          title: "Request Rejected",
 
-      route: "/customer",
+          message: "Your request has been rejected.",
 
-      senderRole: "admin",
-      receiverRole: "customer",
+          route: "/customer",
 
-      title: "Request Rejected",
+          read: false,
 
-      message: `${request.designName} request rejected`,
+          createdAt: new Date().toISOString(),
+        });
+      }
 
-      read: false,
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
 
-      createdAt: new Date().toISOString(),
-    });
-  }
+      throw new Error(
+        err.response?.data?.message ||
+          "Failed to update request status."
+      );
+    }
+  };
+
+  const approveRequest = (id) =>
+    updateStatus(id, "accepted");
+
+  const rejectRequest = (id) =>
+    updateStatus(id, "rejected");
+
+  const deleteRequest = async (
+    requestId,
+    role = "customer"
+  ) => {
+    try {
+      const endpoint =
+        role === "admin"
+          ? `/admin/${requestId}`
+          : `/customer/${requestId}`;
+
+      const response = await API.delete(endpoint);
+
+      await fetchRequests();
+
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
+
+      throw new Error(
+        err.response?.data?.message ||
+          "Failed to delete request."
+      );
+    }
+  };
 
   return (
     <RequestContext.Provider
-      value={{ requests, addRequest, approveRequest, rejectRequest }}
+      value={{
+        requests,
+        pagination,
+        loading,
+        error,
+        fetchRequests,
+        createRequest,
+        approveRequest,
+        rejectRequest,
+        deleteRequest,
+      }}
     >
       {children}
     </RequestContext.Provider>
   );
 }
 
-function useRequest() {
+export function useRequest() {
   return useContext(RequestContext);
 }
-
-export { RequestProvider, useRequest };

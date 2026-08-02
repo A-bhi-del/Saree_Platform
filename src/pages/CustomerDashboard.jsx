@@ -7,8 +7,8 @@ function CustomerDashboard() {
 
   const totalRequests = requests.length;
 
-  const totalApprovedRequests = requests.filter(
-    (request) => request.status === "approved",
+  const totalacceptedRequests = requests.filter(
+    (request) => request.status === "accepted",
   ).length;
 
   const totalRejectedRequests = requests.filter(
@@ -21,7 +21,6 @@ function CustomerDashboard() {
 
   const isDark = theme === "dark";
 
-  // Empty State Screen
   if (requests.length === 0) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-[60vh] font-serif transition-colors duration-300 ${
@@ -82,15 +81,15 @@ function CustomerDashboard() {
           </span>
         </div>
 
-        {/* Approved Card */}
+        {/* accepted Card */}
         <div className={`p-5 rounded-xl border shadow-sm flex flex-col justify-between border-l-4 border-l-emerald-500 transition-colors ${
           isDark ? "bg-slate-900 border-slate-800/80" : "bg-white border-emerald-100"
         }`}>
           <span className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-emerald-500" : "text-emerald-600"}`}>
-            Approved
+            accepted
           </span>
           <span className={`text-3xl font-extrabold mt-2 ${isDark ? "text-emerald-400" : "text-emerald-700"}`}>
-            {totalApprovedRequests}
+            {totalacceptedRequests}
           </span>
         </div>
 
@@ -149,7 +148,7 @@ function CustomerDashboard() {
                   <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider ${
                     request.status === 'pending' && (isDark ? 'bg-amber-950/40 text-amber-400 border border-amber-900/50' : 'bg-amber-50 text-amber-700 border border-amber-200')
                   } ${
-                    request.status === 'approved' && (isDark ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/50' : 'bg-emerald-50 text-emerald-700 border border-emerald-200')
+                    request.status === 'accepted' && (isDark ? 'bg-emerald-950/40 text-emerald-400 border border-emerald-900/50' : 'bg-emerald-50 text-emerald-700 border border-emerald-200')
                   } ${
                     request.status === 'rejected' && (isDark ? 'bg-red-950/40 text-red-400 border border-red-900/50' : 'bg-red-50 text-red-700 border border-red-200')
                   }`}>

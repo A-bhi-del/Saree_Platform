@@ -2,12 +2,27 @@ import { useRequest } from "../context/RequestContext";
 import { useTheme } from "../context/ThemeContext";
 
 function Requests() {
-  const { requests, approveRequest, rejectRequest } = useRequest();
+  const { requests, approveRequest, rejectRequest, loading, error } = useRequest();
   const { theme } = useTheme();
 
   const isDark = theme === "dark";
 
-  // Empty State Layout
+  if (loading) {
+    return (
+      <div className={`flex justify-center items-center min-h-[60vh] ${isDark ? "bg-slate-950 text-slate-300" : "bg-gray-50 text-gray-700"}`}>
+        <p className="font-serif animate-pulse">Loading customer requests...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`flex justify-center items-center min-h-[60vh] ${isDark ? "bg-slate-950 text-red-400" : "bg-gray-50 text-red-600"}`}>
+        <p className="font-serif">{error}</p>
+      </div>
+    );
+  }
+
   if (requests.length === 0) {
     return (
       <div className={`flex flex-col items-center justify-center min-h-[60vh] font-serif transition-colors duration-300 ${
@@ -54,13 +69,13 @@ function Requests() {
       <div className="grid grid-cols-1 gap-6">
         {requests.map((request) => (
           <div 
-            key={request.id} 
+            key={request._id} 
             className={`rounded-xl shadow-sm border p-5 md:p-6 flex flex-col md:flex-row gap-6 items-start justify-between hover:shadow-md transition-all duration-300 ${
               isDark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-100"
             }`}
           >
             
-            {/* Left: Product Image Reference */}
+            {/* Left: Reference Image */}
             <div className={`w-full md:w-44 h-56 md:h-44 rounded-lg overflow-hidden flex-shrink-0 border ${
               isDark ? "bg-slate-800 border-slate-700" : "bg-gray-100 border-gray-200"
             }`}>
@@ -79,10 +94,8 @@ function Requests() {
               )}
             </div>
 
-            {/* Middle: Core Request Details */}
+            {/* Middle: Details */}
             <div className="flex-grow space-y-4 w-full">
-              
-              {/* Type Badge & Name Row */}
               <div className="flex flex-wrap items-center gap-3">
                 <span className={`px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-wider ${
                   request.requestType === 'custom' 
@@ -100,7 +113,7 @@ function Requests() {
                 <span className={`ml-auto px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
                   request.status === 'pending' && (isDark ? 'bg-amber-950/50 text-amber-400' : 'bg-amber-100 text-amber-800')
                 } ${
-                  request.status === 'approved' && (isDark ? 'bg-emerald-950/50 text-emerald-400' : 'bg-emerald-100 text-emerald-800')
+                  request.status === 'accepted' && (isDark ? 'bg-emerald-950/50 text-emerald-400' : 'bg-emerald-100 text-emerald-800')
                 } ${
                   request.status === 'rejected' && (isDark ? 'bg-red-950/50 text-red-400' : 'bg-red-100 text-red-800')
                 }`}>
@@ -140,26 +153,28 @@ function Requests() {
                 </p>
                 <div className={`text-xs flex items-center gap-1 pt-1 ${isDark ? "text-slate-400" : "text-gray-500"}`}>
                   <span>📅 Required Before:</span>
-                  <span className={`font-semibold ${isDark ? "text-slate-300" : "text-gray-700"}`}>{request.requiredByDate}</span>
+                  <span className={`font-semibold ${isDark ? "text-slate-300" : "text-gray-700"}`}>
+                    {request.requiredByDate ? new Date(request.requiredByDate).toLocaleDateString() : 'N/A'}
+                  </span>
                 </div>
               </div>
 
             </div>
 
-            {/* Right: Dynamic Action Controls */}
+            {/* Right Controls */}
             <div className={`w-full md:w-auto flex flex-row md:flex-col gap-3 justify-end md:justify-center self-stretch pt-4 md:pt-0 border-t md:border-t-0 md:border-l md:pl-6 ${
               isDark ? "border-slate-800" : "border-gray-100"
             }`}>
               {request.status === "pending" ? (
                 <>
                   <button 
-                    onClick={() => approveRequest(request.id)}
+                    onClick={() => approveRequest(request._id)}
                     className="w-full md:w-28 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs uppercase tracking-wider py-2.5 px-4 rounded-md shadow-sm transition-colors cursor-pointer text-center"
                   >
                     Approve
                   </button>
                   <button 
-                    onClick={() => rejectRequest(request.id)}
+                    onClick={() => rejectRequest(request._id)}
                     className={`w-full md:w-28 font-semibold text-xs uppercase tracking-wider py-2.5 px-4 rounded-md transition-colors cursor-pointer text-center border ${
                       isDark 
                         ? "bg-transparent border-red-900/60 text-red-400 hover:bg-red-950/40" 
