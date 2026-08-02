@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useRequest } from "../context/RequestContext";
 import { useTheme } from "../context/ThemeContext";
+import { useNavigate } from "react-router-dom";
 
 function RequestSaree() {
   const { createRequest } = useRequest();
   const { theme } = useTheme();
+  const navigate = useNavigate();
 
   const [adminId, setAdminId] = useState(""); 
   const [sareeId, setSareeId] = useState(""); 
@@ -70,7 +72,9 @@ function RequestSaree() {
       setImage("");
 
       setSuccessMsg(true);
-      setTimeout(() => setSuccessMsg(false), 5000);
+      setTimeout(() => setSuccessMsg(false)
+      , 1000);
+      navigate("/customer")
     } catch (err) {
       setErrorMsg(err.message || "Something went wrong.");
     } finally {

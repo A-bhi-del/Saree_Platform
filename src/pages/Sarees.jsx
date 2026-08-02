@@ -91,6 +91,20 @@ function SareeCard({ saree, isDark, role, addFavourites, navigate, deleteSaree }
 
   const [activeImgIdx, setActiveImgIdx] = useState(0);
 
+  // Helper function to safely parse Objects or Strings into a renderable string
+  const getSafeIdString = (idValue) => {
+    if (!idValue) return "N/A";
+    if (typeof idValue === "string" || typeof idValue === "number") return String(idValue);
+    if (typeof idValue === "object") {
+      return idValue._id || idValue.id || idValue.email || idValue.name || "N/A";
+    }
+    return "N/A";
+  };
+
+  // Safe extraction for Saree ID & Admin ID
+  const sareeId = getSafeIdString(saree._id || saree.id);
+  const adminId = getSafeIdString(saree.adminId || saree.createdBy || saree.admin || saree.user);
+
   const discountedPrice = Math.round(saree.price - (saree.price * saree.discountPercentage) / 100);
   const hasDiscount = saree.discountPercentage > 0;
 
@@ -121,16 +135,16 @@ function SareeCard({ saree, isDark, role, addFavourites, navigate, deleteSaree }
         />
 
         {/* Top Badges (Stock & Discount) */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 max-w-[70%]">
           {saree.stock < 5 && (
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border ${
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border w-fit ${
               isDark ? "bg-red-950/90 text-red-400 border-red-900/40" : "bg-red-50 text-red-600 border-red-100"
             }`}>
               Low Stock ({saree.stock})
             </span>
           )}
           {hasDiscount && (
-            <span className="bg-amber-500 dark:bg-amber-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-sm">
+            <span className="bg-amber-500 dark:bg-amber-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded shadow-sm w-fit">
               {saree.discountPercentage}% OFF
             </span>
           )}
@@ -143,7 +157,7 @@ function SareeCard({ saree, isDark, role, addFavourites, navigate, deleteSaree }
           {saree.fabric}
         </span>
 
-        {/* 📸 Multiple Images Controls (Shows if images > 1) */}
+        {/* 📸 Multiple Images Controls */}
         {imageList.length > 1 && (
           <>
             {/* Image Count Indicator */}
@@ -186,6 +200,20 @@ function SareeCard({ saree, isDark, role, addFavourites, navigate, deleteSaree }
 
       {/* Details Box */}
       <div className="p-5 flex flex-col flex-grow">
+        
+        <div className={`p-2.5 mb-3 rounded-lg border flex flex-col gap-1 text-[11px] font-mono ${
+          isDark ? "bg-slate-950/60 border-slate-800 text-slate-400" : "bg-gray-50 border-gray-200 text-gray-600"
+        }`}>
+          <div className="flex items-center justify-between">
+            <span className="font-semibold opacity-75">Saree ID:</span>
+            <span className="font-bold select-all tracking-wider truncate max-w-[150px]" title={sareeId}>{sareeId}</span>
+          </div>
+          {role === "customer" && <div className="flex items-center justify-between border-t border-dashed pt-1 mt-0.5 opacity-90">
+            <span className="font-semibold opacity-75">Admin ID:</span>
+            <span className="font-bold select-all tracking-wider truncate max-w-[150px]" title={adminId}>{adminId}</span>
+          </div>}
+        </div>
+
         <div className="flex justify-between items-start gap-3 mb-2">
           <h3 className={`text-base font-bold font-serif line-clamp-1 flex-grow ${isDark ? "text-slate-100" : "text-gray-800"}`}>
             {saree.name}
@@ -218,12 +246,12 @@ function SareeCard({ saree, isDark, role, addFavourites, navigate, deleteSaree }
           )}
           {role === "admin" && (
             <div className="w-full flex gap-3">
-              <button onClick={() => navigate(`/edit-saree/${saree._id || saree.id}`)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
+              <button onClick={() => navigate(`/edit-saree/${sareeId}`)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
                 isDark ? "border-amber-900/50 text-amber-400 hover:bg-amber-950/30" : "border-amber-200 text-amber-700 hover:bg-amber-50"
               }`}>
                 📝 Edit
               </button>
-              <button onClick={() => deleteSaree(saree._id || saree.id)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
+              <button onClick={() => deleteSaree(sareeId)} className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
                 isDark 
                   ? "bg-red-950/40 hover:bg-red-900/30 text-red-400 border-red-900/40" 
                   : "bg-red-50 hover:bg-red-100 text-red-600 border-red-100"
@@ -446,9 +474,9 @@ function Sarees() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {sortedSarees.map((saree) => (
+                {sortedSarees.map((saree, index) => (
                   <SareeCard 
-                    key={saree._id || saree.id}
+                    key={saree._id || saree.id || index}
                     saree={saree}
                     isDark={isDark}
                     role={role}
