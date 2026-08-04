@@ -46,9 +46,12 @@ function Register() {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/send-otp", {
-        email: formData.email,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/send-otp",
+        {
+          email: formData.email,
+        },
+      );
 
       setToast(response.data.message || "OTP sent to your email!");
       setStep(2);
@@ -71,13 +74,18 @@ function Register() {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/verify-otp", {
-        email: formData.email,
-        otp,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/verify-otp",
+        {
+          email: formData.email,
+          otp,
+        },
+      );
 
       setIsOtpVerified(true);
-      setToast(response.data.message || "Email verified! Complete registration below.");
+      setToast(
+        response.data.message || "Email verified! Complete registration below.",
+      );
       setStep(3);
     } catch (err) {
       const errorMessage =
@@ -114,13 +122,19 @@ function Register() {
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", payload);
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        payload,
+      );
 
-      setToast(response.data.message || "Registered successfully! Redirecting to login...");
+      setToast(
+        response.data.message ||
+          "Registered successfully! Redirecting to login...",
+      );
       setTimeout(() => {
-        if(role === "admin"){
+        if (role === "admin") {
           navigate("/admin");
-        }else{
+        } else {
           navigate("/customer");
         }
       }, 1500);
@@ -175,8 +189,8 @@ function Register() {
                     ? "bg-amber-950/80 text-amber-400 border border-amber-800/50"
                     : "bg-amber-50 text-amber-700 border border-amber-200"
                   : isDark
-                  ? "bg-rose-950/80 text-rose-400 border border-rose-800/50"
-                  : "bg-rose-50 text-rose-800 border border-rose-200"
+                    ? "bg-rose-950/80 text-rose-400 border border-rose-800/50"
+                    : "bg-rose-50 text-rose-800 border border-rose-200"
               }`}
             >
               {isAdmin ? "⚙️ Operational Portal" : "🛍️ Boutique Access"}
@@ -273,8 +287,8 @@ function Register() {
                         ? "text-amber-400 hover:text-amber-300"
                         : "text-amber-700 hover:text-amber-800"
                       : isDark
-                      ? "text-rose-400 hover:text-rose-300"
-                      : "text-rose-900 hover:text-rose-950"
+                        ? "text-rose-400 hover:text-rose-300"
+                        : "text-rose-900 hover:text-rose-950"
                   }`}
                 >
                   Sign In Directly →

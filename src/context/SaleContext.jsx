@@ -1,66 +1,167 @@
-import { createContext, use, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { useNotification } from "./NotificationContext";
+import { useAuth } from "./AuthContext";
 
 const SaleContext = createContext();
 
+const API = axios.create({
+  baseURL: "http://localhost:5000/api/sales",
+  withCredentials: true,
+});
+
 function SaleProvider({ children }) {
   const { addNotification } = useNotification();
-  const [sale, setSale] = useState(
-    JSON.parse(localStorage.getItem("sale")) || [],
-  );
+  const { role, userId } = useAuth();
+
+  const [sale, setSale] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch Sales (Role-Based Dynamic Route)
+  const fetchMySale = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const endpoint = role === "admin" ? "/" : "/active";
+
+      const response = await API.get(endpoint);
+
+      const responseData =
+        response.data?.sales || response.data?.data || response.data;
+
+      const salesData = Array.isArray(responseData)
+        ? responseData
+        : responseData
+          ? [responseData]
+          : [];
+
+      setSale(salesData);
+    } catch (err) {
+      console.error("Sales Fetch Error:", err);
+
+      setError(err.response?.data?.message || "Failed to fetch sales.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem("sale", JSON.stringify(sale));
-  }, [sale]);
+    fetchMySale();
+  }, [userId]);
 
-  function addSale(s) {
-    // console.log("sale start");
-    setSale((prev) => [...prev, s]);
-    // console.log("before noti");
-    addNotification({
-      id: Date.now(),
-      type: "sale-alert",
-      data: {
-        saleId: s.id,
-        title: s.saleName,
-        discountPercentage: s.discount,
-      },
+  // Create Sale
+  const addSale = async (salePayload) => {
+    try {
+      setLoading(true);
 
-      senderRole: "admin",
-      receiverRole: "customer",
+      const formattedData = {
+        title: salePayload.title || salePayload.saleName,
+        description: salePayload.description || "",
+        discountType: salePayload.discountType || "percentage",
+        discountValue: Number(
+          salePayload.discountValue || salePayload.discount,
+        ),
+        startDate: salePayload.startDate,
+        endDate: salePayload.endDate,
+      };
 
-      title: "Sale started",
-      message: `${s.saleName} - Flat ${s.discount}% OFF`,
+      const response = await API.post("/", formattedData);
 
-      route: "/sarees",
-      read: false,
-      createdAt: new Date().toISOString(),
-    });
+      await fetchMySale();
 
-    // console.log("after noti");
-  }
+      addNotification({
+        id: Date.now(),
+        type: "sale-alert",
+        senderRole: "admin",
+        receiverRole: "customer",
+        title: "Sale Started",
+        message: `${formattedData.title} - ${
+          formattedData.discountType === "percentage"
+            ? `Flat ${formattedData.discountValue}% OFF`
+            : `₹${formattedData.discountValue} OFF`
+        }`,
+        route: "/sarees",
+        read: false,
+        createdAt: new Date().toISOString(),
+      });
 
-  function toggleSale(id) {
-    setSale((prev) =>
-      prev.map((sale) =>
-        sale.id === id ? { ...sale, active: !sale.active } : sale,
-      ),
-    );
-  }
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
 
-  function removeSale(id){
-    setSale((prev) => prev.filter((s) => s.id !== id));
-  }
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to create sale.",
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update Sale
+  const toggleSale = async (id, updatedFields = {}) => {
+    try {
+      const response = await API.patch(`/${id}`, updatedFields);
+      await fetchMySale();
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to update sale.",
+      };
+    }
+  };
+
+  // Delete Sale
+  const removeSale = async (id) => {
+    try {
+      const response = await API.delete(`/${id}`);
+
+      await fetchMySale();
+
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to delete sale.",
+      };
+    }
+  };
 
   return (
-    <SaleContext.Provider value={{ sale, addSale, toggleSale, removeSale }}>
+    <SaleContext.Provider
+      value={{
+        sale,
+        loading,
+        error,
+        addSale,
+        toggleSale,
+        removeSale,
+        refreshSale: fetchMySale,
+      }}
+    >
       {children}
     </SaleContext.Provider>
   );
 }
 
-function useSale() {
+export function useSale() {
   return useContext(SaleContext);
 }
 
-export { SaleProvider, useSale };
+export { SaleProvider };

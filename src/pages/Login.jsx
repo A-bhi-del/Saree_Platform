@@ -4,24 +4,23 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useSaree } from "../context/SareeContext";
+import { useSale } from "../context/SaleContext";
 
 function Login() {
-  const { role, login } = useAuth();
-  const {getSarees} = useSaree();
+  const { role, setUser } = useAuth();
+  const { getSarees } = useSaree();
   const { theme } = useTheme();
   const navigate = useNavigate();
-
   const isDark = theme === "dark";
   const isAdmin = role === "admin";
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
+  const { refreshSale } = useSale();
 
   const handleChange = (e) => {
     setError("");
@@ -51,8 +50,7 @@ function Login() {
       );
 
       const user = response.data.message.user;
-
-      console.log(response.data);
+      setUser(user);
 
       if (!user) {
         setError("Invalid response");
@@ -64,13 +62,8 @@ function Login() {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(user));
-
-      if (login) {
-        login(user);
-      }
-
       await getSarees();
+      await refreshSale();
 
       if (user?.role === "admin" || isAdmin) {
         setToast("Login successful! Redirecting to Admin Panel...");
@@ -78,9 +71,6 @@ function Login() {
       } else if (user?.role === "customer") {
         setToast("Login successful! Redirecting to Customer Panel...");
         setTimeout(() => navigate("/customer"), 1200);
-      } else {
-        setError("User role mismatch! Redirecting...");
-        setTimeout(() => navigate("/"), 2000);
       }
     } catch (err) {
       const errorMessage =

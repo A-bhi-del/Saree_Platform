@@ -14,7 +14,6 @@ function SareeProvider({ children }) {
   const [sarees, setSarees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({});
-
   const getSarees = async (filters = {}) => {
     setLoading(true);
     try {
@@ -26,7 +25,7 @@ function SareeProvider({ children }) {
     } catch (error) {
       console.error(
         "Error fetching sarees:",
-        error?.response?.data?.message || error.message
+        error?.response?.data?.message || error.message,
       );
     } finally {
       setLoading(false);
@@ -66,7 +65,10 @@ function SareeProvider({ children }) {
 
       return createdSaree;
     } catch (error) {
-      console.error("Error adding saree:", error?.response?.data?.message || error.message);
+      console.error(
+        "Error adding saree:",
+        error?.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -74,9 +76,14 @@ function SareeProvider({ children }) {
   async function deleteSaree(id) {
     try {
       await deleteSareeApi(id);
-      setSarees((prev) => prev.filter((saree) => (saree._id || saree.id) !== id));
+      setSarees((prev) =>
+        prev.filter((saree) => (saree._id || saree.id) !== id),
+      );
     } catch (error) {
-      console.error("Error deleting saree:", error?.response?.data?.message || error.message);
+      console.error(
+        "Error deleting saree:",
+        error?.response?.data?.message || error.message,
+      );
       throw error;
     }
   }
@@ -85,15 +92,17 @@ function SareeProvider({ children }) {
     const sareeId = updatedSareeData._id || updatedSareeData.id;
 
     try {
-      const oldSaree = sarees.find((saree) => (saree._id || saree.id) === sareeId);
+      const oldSaree = sarees.find(
+        (saree) => (saree._id || saree.id) === sareeId,
+      );
 
       const response = await updateSareeApi(sareeId, updatedSareeData);
       const updatedSaree = response.data.data;
 
       setSarees((prev) =>
         prev.map((saree) =>
-          (saree._id || saree.id) === sareeId ? updatedSaree : saree
-        )
+          (saree._id || saree.id) === sareeId ? updatedSaree : saree,
+        ),
       );
 
       if (
@@ -119,7 +128,10 @@ function SareeProvider({ children }) {
 
       return updatedSaree;
     } catch (error) {
-      console.error("Error updating saree:", error?.response?.data?.message || error.message);
+      console.error(
+        "Error updating saree:",
+        error?.response?.data?.message || error.message,
+      );
       throw error;
     }
   }

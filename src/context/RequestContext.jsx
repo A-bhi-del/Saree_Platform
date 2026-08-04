@@ -39,10 +39,7 @@ export function RequestProvider({ children }) {
     } catch (err) {
       console.error("Error fetching requests:", err);
 
-      setError(
-        err.response?.data?.message ||
-          "Failed to load requests."
-      );
+      setError(err.response?.data?.message || "Failed to load requests.");
     } finally {
       setLoading(false);
     }
@@ -85,21 +82,14 @@ export function RequestProvider({ children }) {
       console.error(err);
 
       throw new Error(
-        err.response?.data?.message ||
-          "Failed to submit request."
+        err.response?.data?.message || "Failed to submit request.",
       );
     }
   };
 
-  const updateStatus = async (
-    requestId,
-    status
-  ) => {
+  const updateStatus = async (requestId, status) => {
     try {
-      const response = await API.patch(
-        `/${requestId}/status`,
-        { status }
-      );
+      const response = await API.patch(`/${requestId}/status`, { status });
 
       await fetchRequests();
 
@@ -151,27 +141,19 @@ export function RequestProvider({ children }) {
       console.error(err);
 
       throw new Error(
-        err.response?.data?.message ||
-          "Failed to update request status."
+        err.response?.data?.message || "Failed to update request status.",
       );
     }
   };
 
-  const approveRequest = (id) =>
-    updateStatus(id, "accepted");
+  const approveRequest = (id) => updateStatus(id, "accepted");
 
-  const rejectRequest = (id) =>
-    updateStatus(id, "rejected");
+  const rejectRequest = (id) => updateStatus(id, "rejected");
 
-  const deleteRequest = async (
-    requestId,
-    role = "customer"
-  ) => {
+  const deleteRequest = async (requestId, role = "customer") => {
     try {
       const endpoint =
-        role === "admin"
-          ? `/admin/${requestId}`
-          : `/customer/${requestId}`;
+        role === "admin" ? `/admin/${requestId}` : `/customer/${requestId}`;
 
       const response = await API.delete(endpoint);
 
@@ -185,8 +167,7 @@ export function RequestProvider({ children }) {
       console.error(err);
 
       throw new Error(
-        err.response?.data?.message ||
-          "Failed to delete request."
+        err.response?.data?.message || "Failed to delete request.",
       );
     }
   };
