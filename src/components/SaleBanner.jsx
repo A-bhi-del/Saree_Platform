@@ -39,8 +39,6 @@ function SalesBanner({ sale, isDark }) {
 
   const currentBanner = activeSales[currentBannerIndex];
 
-  console.log(currentBanner?.admin);
-
   const nextBanner = (e) => {
     e.stopPropagation();
     setCurrentBannerIndex((prev) => (prev === activeSales.length - 1 ? 0 : prev + 1));

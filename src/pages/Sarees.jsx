@@ -438,7 +438,7 @@ function Sarees() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {sortedSarees.map((saree, index) => (
                   <SareeCard
-                    key={saree._id || saree.id || index}
+                    key={saree._id || index}
                     saree={saree}
                     isDark={isDark}
                     role={role}

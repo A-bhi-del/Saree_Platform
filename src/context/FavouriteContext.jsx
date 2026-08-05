@@ -1,36 +1,117 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const FavouriteContext = createContext();
 
-function FavouriteProvider({children}){
-    const [favourites, setFavourites] = useState(JSON.parse(localStorage.getItem("favourites")) || []);
-    const navigate = useNavigate();
+const API = axios.create({
+  baseURL: "http://localhost:5000/api/favorite-sarees",
+  withCredentials: true,
+});
 
-    useEffect(() => {
-        localStorage.setItem("favourites", JSON.stringify(favourites));
-    }, [favourites]);
+function FavouriteProvider({ children }) {
+  const [favourites, setFavourites] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    function addFavourites(saree){
-        const exist = favourites.find((item) => item.id === saree.id);
-        if(exist) return;
-        setFavourites([...favourites, saree]);
-        navigate("/favourites-page");
+  const navigate = useNavigate();
+
+  // Fetch Favourite Sarees
+  const fetchFavourites = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await API.get("/");
+
+      setFavourites(response.data.data || []);
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.message ||
+          "Failed to fetch favourites."
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    function removeFavourites(id){
-        setFavourites((favourite) => favourite.filter((item) => item.id !== id));
+  useEffect(() => {
+    fetchFavourites();
+  }, []);
+
+  // Add Favourite
+  const addFavourites = async (saree) => {
+    try {
+      const response = await API.post(`/${saree._id}`);
+
+      await fetchFavourites();
+
+      navigate("/favourites-page");
+
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message:
+          err.response?.data?.message ||
+          "Failed to add favourite.",
+      };
     }
+  };
 
-    return(
-        <FavouriteContext.Provider value={{favourites, addFavourites, removeFavourites}}>
-            {children}
-        </FavouriteContext.Provider>
-    )
-};
+  // Remove Favourite
+  const removeFavourites = async (sareeId) => {
+    try {
+      const response = await API.delete(`/${sareeId}`);
 
-function useFavourites(){
-    return useContext(FavouriteContext);
+      await fetchFavourites();
+
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message:
+          err.response?.data?.message ||
+          "Failed to remove favourite.",
+      };
+    }
+  };
+
+  return (
+    <FavouriteContext.Provider
+      value={{
+        favourites,
+        loading,
+        error,
+        fetchFavourites,
+        addFavourites,
+        removeFavourites,
+      }}
+    >
+      {children}
+    </FavouriteContext.Provider>
+  );
 }
 
-export {FavouriteProvider, useFavourites};
+function useFavourites() {
+  return useContext(FavouriteContext);
+}
+
+export { FavouriteProvider, useFavourites };

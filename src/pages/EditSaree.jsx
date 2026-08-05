@@ -12,8 +12,6 @@ function EditSaree() {
     (item) => String(item._id || item.id) === String(id)
   );
 
-  // console.log(saree.images[0]);
-
   const [name, setName] = useState("");
   const [fabric, setFabric] = useState("");
   const [price, setPrice] = useState("");

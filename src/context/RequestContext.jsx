@@ -17,7 +17,6 @@ const API = axios.create({
 
 export function RequestProvider({ children }) {
   const { addNotification } = useNotification();
-
   const [requests, setRequests] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);

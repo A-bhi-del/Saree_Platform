@@ -5,6 +5,8 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useSaree } from "../context/SareeContext";
 import { useSale } from "../context/SaleContext";
+import { useRequest } from "../context/RequestContext";
+import { useFavourites } from "../context/FavouriteContext";
 
 function Login() {
   const { role, setUser } = useAuth();
@@ -21,6 +23,8 @@ function Login() {
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
   const { refreshSale } = useSale();
+  const {fetchRequests} = useRequest();
+  const {fetchFavourites} = useFavourites();
 
   const handleChange = (e) => {
     setError("");
@@ -64,6 +68,8 @@ function Login() {
 
       await getSarees();
       await refreshSale();
+      await fetchRequests();
+      await fetchFavourites();
 
       if (user?.role === "admin" || isAdmin) {
         setToast("Login successful! Redirecting to Admin Panel...");

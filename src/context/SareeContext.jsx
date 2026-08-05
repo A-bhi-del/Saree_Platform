@@ -61,8 +61,6 @@ function SareeProvider({ children }) {
         createdAt: new Date().toISOString(),
       });
 
-      console.log("Saree added:", createdSaree);
-
       return createdSaree;
     } catch (error) {
       console.error(

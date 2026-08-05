@@ -2,8 +2,7 @@ import { useRequest } from "../context/RequestContext";
 import { useTheme } from "../context/ThemeContext";
 
 function Requests() {
-  const { requests, approveRequest, rejectRequest, loading, error } =
-    useRequest();
+  const { requests, approveRequest, rejectRequest, loading, error } = useRequest();
   const { theme } = useTheme();
   const isDark = theme === "dark";
 

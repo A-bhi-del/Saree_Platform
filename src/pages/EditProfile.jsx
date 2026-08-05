@@ -29,7 +29,6 @@ function EditProfile() {
         });
 
         const user = res.data.message;
-        console.log(user);
 
         setFormData({
           name: user.name || "",

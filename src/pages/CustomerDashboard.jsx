@@ -118,7 +118,7 @@ function CustomerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {requests.map((request) => (
             <div 
-              key={request.id} 
+              key={request._id} 
               className={`rounded-xl shadow-sm border p-5 flex flex-col sm:flex-row gap-5 items-start relative overflow-hidden hover:shadow-md transition-all ${
                 isDark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-100"
               }`}

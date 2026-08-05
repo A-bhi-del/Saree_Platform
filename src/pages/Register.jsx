@@ -131,13 +131,7 @@ function Register() {
         response.data.message ||
           "Registered successfully! Redirecting to login...",
       );
-      setTimeout(() => {
-        if (role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/customer");
-        }
-      }, 1500);
+      navigate("/login");
     } catch (err) {
       const errorMessage =
         err.response?.data?.message || "Registration failed. Please try again.";
