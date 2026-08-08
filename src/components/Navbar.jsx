@@ -6,20 +6,29 @@ import { useTheme } from "../context/ThemeContext";
 import axios from "axios";
 
 function Navbar() {
-  const { role, setRole } = useAuth();
+  const { role, setRole, userId} = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { notifications, markAsRead, removeNotification } = useNotification();
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
+  // console.log(notifications);
   const userNotifications = notifications.filter(
-    (notification) => notification.receiverRole === role,
+    (notification) =>
+      notification.receiver === userId ||
+      notification.type === "sale" ||
+      notification.type === "new-saree" ||
+      notification.type === "Discount Updated"
   );
 
+  // console.log(notifications[0].type);
+  // console.log(userId);
   const unread_count = userNotifications.filter(
-    (noti) => noti.read === false,
+    (noti) => noti.isRead === false,
   ).length;
 
+  // console.log(unread_count);
+  // console.log(userNotifications);
 
   async function handleLogout() {
     try {
@@ -232,9 +241,9 @@ function Navbar() {
                 ) : (
                   userNotifications.map((notification) => (
                     <div
-                      key={notification.id}
+                      key={notification._id}
                       onClick={() => {
-                        markAsRead(notification.id);
+                        markAsRead(notification._id);
                         navigate(notification.route);
                         setShowNotifications(false);
                       }}
@@ -243,7 +252,7 @@ function Navbar() {
                           ? "hover:bg-slate-700/50"
                           : "hover:bg-rose-50/30"
                       } ${
-                        !notification.read
+                        !notification.isRead
                           ? theme === "dark"
                             ? "bg-amber-950/20 border-l-2 border-l-amber-500"
                             : "bg-amber-50/20 border-l-2 border-l-amber-500"
@@ -271,7 +280,7 @@ function Navbar() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                markAsRead(notification.id);
+                                markAsRead(notification._id);
                               }}
                               title="Mark as read"
                               className="text-[10px] text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/60 px-2 py-1 rounded font-semibold transition-colors cursor-pointer flex items-center gap-1"
@@ -282,7 +291,7 @@ function Navbar() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              removeNotification(notification.id);
+                              removeNotification(notification._id);
                             }}
                             title="Delete notification"
                             className="text-[10px] text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/60 p-1 rounded transition-colors cursor-pointer flex items-center justify-center w-5 h-5 font-bold"

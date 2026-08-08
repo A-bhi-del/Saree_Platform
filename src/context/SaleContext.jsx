@@ -11,14 +11,11 @@ const API = axios.create({
 });
 
 function SaleProvider({ children }) {
-  const { addNotification } = useNotification();
   const { role, userId } = useAuth();
-
   const [sale, setSale] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch Sales (Role-Based Dynamic Route)
   const fetchMySale = async () => {
     try {
       setLoading(true);
@@ -70,22 +67,6 @@ function SaleProvider({ children }) {
       const response = await API.post("/", formattedData);
 
       await fetchMySale();
-
-      addNotification({
-        id: Date.now(),
-        type: "sale-alert",
-        senderRole: "admin",
-        receiverRole: "customer",
-        title: "Sale Started",
-        message: `${formattedData.title} - ${
-          formattedData.discountType === "percentage"
-            ? `Flat ${formattedData.discountValue}% OFF`
-            : `₹${formattedData.discountValue} OFF`
-        }`,
-        route: "/sarees",
-        read: false,
-        createdAt: new Date().toISOString(),
-      });
 
       return {
         success: true,

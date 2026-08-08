@@ -16,7 +16,6 @@ const API = axios.create({
 });
 
 export function RequestProvider({ children }) {
-  const { addNotification } = useNotification();
   const [requests, setRequests] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -54,25 +53,6 @@ export function RequestProvider({ children }) {
 
       await fetchRequests();
 
-      addNotification({
-        id: Date.now(),
-
-        type: "request",
-
-        senderRole: "customer",
-        receiverRole: "admin",
-
-        title: "New Request",
-
-        message: `${requestData.designName} request submitted`,
-
-        route: "/request",
-
-        read: false,
-
-        createdAt: new Date().toISOString(),
-      });
-
       return {
         success: true,
         message: response.data.message,
@@ -91,46 +71,6 @@ export function RequestProvider({ children }) {
       const response = await API.patch(`/${requestId}/status`, { status });
 
       await fetchRequests();
-
-      if (status === "accepted") {
-        addNotification({
-          id: Date.now(),
-
-          type: "request-approved",
-
-          senderRole: "admin",
-          receiverRole: "customer",
-
-          title: "Request Approved",
-
-          message: "Your request has been approved.",
-
-          route: "/customer",
-
-          read: false,
-
-          createdAt: new Date().toISOString(),
-        });
-      } else {
-        addNotification({
-          id: Date.now(),
-
-          type: "request-rejected",
-
-          senderRole: "admin",
-          receiverRole: "customer",
-
-          title: "Request Rejected",
-
-          message: "Your request has been rejected.",
-
-          route: "/customer",
-
-          read: false,
-
-          createdAt: new Date().toISOString(),
-        });
-      }
 
       return {
         success: true,

@@ -10,7 +10,6 @@ import {
 const SareeContext = createContext();
 
 function SareeProvider({ children }) {
-  const { addNotification } = useNotification();
   const [sarees, setSarees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({});
@@ -42,24 +41,6 @@ function SareeProvider({ children }) {
       const createdSaree = response.data.data;
 
       setSarees((prev) => [createdSaree, ...prev]);
-
-      addNotification({
-        id: Date.now(),
-        type: "new-saree",
-        data: {
-          id: createdSaree._id,
-          name: createdSaree.name,
-          price: createdSaree.price,
-          fabric: createdSaree.fabric,
-        },
-        senderRole: "admin",
-        receiverRole: "customer",
-        title: "New Saree Added",
-        message: `${createdSaree.name} is now available`,
-        route: "/sarees",
-        read: false,
-        createdAt: new Date().toISOString(),
-      });
 
       return createdSaree;
     } catch (error) {
@@ -102,27 +83,6 @@ function SareeProvider({ children }) {
           (saree._id || saree.id) === sareeId ? updatedSaree : saree,
         ),
       );
-
-      if (
-        oldSaree &&
-        oldSaree.discountPercentage !== updatedSaree.discountPercentage
-      ) {
-        addNotification({
-          type: "discount",
-          data: {
-            sareeId: updatedSaree._id,
-            sareeName: updatedSaree.name,
-            discountPercentage: updatedSaree.discountPercentage,
-          },
-          senderRole: "admin",
-          receiverRole: "customer",
-          title: "Discount Added",
-          message: `${updatedSaree.name} is now ${updatedSaree.discountPercentage}% off`,
-          route: "/sarees",
-          read: false,
-          createdAt: new Date().toISOString(),
-        });
-      }
 
       return updatedSaree;
     } catch (error) {

@@ -19,10 +19,8 @@ function EditSaree() {
   const [color, setColor] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
-  
   const [images, setImages] = useState([""]);
   const [discountPercentage, setDiscountPercentage] = useState(0);
-
   const navigate = useNavigate();
   const isDark = theme === "dark";
 

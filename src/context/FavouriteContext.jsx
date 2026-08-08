@@ -21,7 +21,6 @@ function FavouriteProvider({ children }) {
 
   const navigate = useNavigate();
 
-  // Fetch Favourite Sarees
   const fetchFavourites = async () => {
     try {
       setLoading(true);

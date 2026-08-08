@@ -6,6 +6,8 @@ function SalePage() {
   const { sale, removeSale } = useSale();
   const { theme } = useTheme();
 
+  console.log(sale);
+
   const isDark = theme === "dark";
 
   // Check if Sale is currently Active based on current date
@@ -93,7 +95,7 @@ function SalePage() {
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sale.map((s) => {
-          const saleId = s._id || s.id;
+          const saleId = s._id;
           const active = isSaleActive(s.startDate, s.endDate);
 
           return (
