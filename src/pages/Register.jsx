@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { registerUser, sendOtp, verifyOtp } from "../api/authApi";
 
 function Register() {
   const { role } = useAuth();
@@ -46,12 +47,9 @@ function Register() {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/send-otp",
-        {
-          email: formData.email,
-        },
-      );
+      const response = await sendOtp({
+        email: formData.email,
+      });
 
       setToast(response.data.message || "OTP sent to your email!");
       setStep(2);
@@ -74,13 +72,10 @@ function Register() {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
-        {
-          email: formData.email,
-          otp,
-        },
-      );
+      const response = await verifyOtp({
+        email: formData.email,
+        otp,
+      });
 
       setIsOtpVerified(true);
       setToast(
@@ -122,10 +117,7 @@ function Register() {
     };
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        payload,
-      );
+      const response = await registerUser(payload);
 
       setToast(
         response.data.message ||

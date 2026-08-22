@@ -4,6 +4,7 @@ import { useNotification } from "../context/NotificationContext";
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import axios from "axios";
+import { logoutUser } from "../api/authApi";
 
 function Navbar() {
   const { role, setRole, userId} = useAuth();
@@ -12,7 +13,6 @@ function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
-  // console.log(notifications);
   const userNotifications = notifications.filter(
     (notification) =>
       notification.receiver === userId ||
@@ -21,24 +21,13 @@ function Navbar() {
       notification.type === "Discount Updated"
   );
 
-  // console.log(notifications[0].type);
-  // console.log(userId);
   const unread_count = userNotifications.filter(
     (noti) => noti.isRead === false,
   ).length;
 
-  // console.log(unread_count);
-  // console.log(userNotifications);
-
   async function handleLogout() {
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/logout",
-        {},
-        {
-          withCredentials: true,
-        },
-      );
+      await logoutUser({});
     } catch (error) {
       console.error("Logout API error:", error);
     } finally {

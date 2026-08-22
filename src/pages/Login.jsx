@@ -7,9 +7,15 @@ import { useSaree } from "../context/SareeContext";
 import { useSale } from "../context/SaleContext";
 import { useRequest } from "../context/RequestContext";
 import { useFavourites } from "../context/FavouriteContext";
+import { useNotification } from "../context/NotificationContext";
+import { loginUser } from "../api/authApi";
 
 function Login() {
   const { role, setUser } = useAuth();
+  const { refreshSale } = useSale();
+  const {fetchRequests} = useRequest();
+  const {fetchNotifications} = useNotification();
+  const {fetchFavourites} = useFavourites();
   const { getSarees } = useSaree();
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -22,9 +28,6 @@ function Login() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [loading, setLoading] = useState(false);
-  const { refreshSale } = useSale();
-  const {fetchRequests} = useRequest();
-  const {fetchFavourites} = useFavourites();
 
   const handleChange = (e) => {
     setError("");
@@ -41,17 +44,11 @@ function Login() {
     setToast("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        {
-          email: formData.email,
-          password: formData.password,
-          role: role || "customer",
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      const response = await loginUser({
+        email: formData.email,
+        password: formData.password,
+        role: role || "customer",
+      });
 
       const user = response.data.message.user;
       setUser(user);
@@ -70,6 +67,7 @@ function Login() {
       await refreshSale();
       await fetchRequests();
       await fetchFavourites();
+      await fetchNotifications();
 
       if (user?.role === "admin" || isAdmin) {
         setToast("Login successful! Redirecting to Admin Panel...");

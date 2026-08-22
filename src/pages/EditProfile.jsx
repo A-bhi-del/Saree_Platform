@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import axios from "axios";
+import { getCurrentUser, updateProfile } from "../api/authApi";
 
 function EditProfile() {
   const { role } = useAuth();
@@ -24,9 +25,7 @@ function EditProfile() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
-          withCredentials: true,
-        });
+        const res = await getCurrentUser();
 
         const user = res.data.message;
 
@@ -63,13 +62,8 @@ function EditProfile() {
     }
 
     try {
-      const res = await axios.patch(
-        "http://localhost:5000/api/auth/edit-profile",
-        payload,
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await updateProfile(payload);
+      
       setMessage(res.data.message || "Profile updated successfully!");
       navigate("/profile");
     } catch (err) {

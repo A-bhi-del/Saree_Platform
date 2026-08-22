@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
+import { getCurrentUser } from "../api/authApi";
 
 const AuthContext = createContext();
 
@@ -16,9 +17,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     async function fetchUserProfile() {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
-          withCredentials: true,
-        });
+        const res = await getCurrentUser();
         setUserId(res.data.message._id);
         setUser(res.data.message);
       } catch (err) {

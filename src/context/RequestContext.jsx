@@ -7,13 +7,14 @@ import {
 } from "react";
 import axios from "axios";
 import { useNotification } from "./NotificationContext";
+import { createRequestApi, getRequests, updateRequestStatus } from "../api/requestApi";
 
 const RequestContext = createContext();
 
-const API = axios.create({
-  baseURL: "http://localhost:5000/api/requests",
-  withCredentials: true,
-});
+// const API = axios.create({
+//   baseURL: "http://localhost:5000/api/requests",
+//   withCredentials: true,
+// });
 
 export function RequestProvider({ children }) {
   const [requests, setRequests] = useState([]);
@@ -26,9 +27,7 @@ export function RequestProvider({ children }) {
     setError(null);
 
     try {
-      const response = await API.get("/", {
-        params: { page, limit },
-      });
+      const response = await getRequests();
 
       if (response.data.success) {
         setRequests(response.data.data);
@@ -49,7 +48,7 @@ export function RequestProvider({ children }) {
 
   const createRequest = async (requestData) => {
     try {
-      const response = await API.post("/", requestData);
+      const response = await createRequestApi(requestData);
 
       await fetchRequests();
 
@@ -68,7 +67,7 @@ export function RequestProvider({ children }) {
 
   const updateStatus = async (requestId, status) => {
     try {
-      const response = await API.patch(`/${requestId}/status`, { status });
+      const response = await updateRequestStatus(requestId, { status });
 
       await fetchRequests();
 
