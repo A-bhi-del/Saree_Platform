@@ -16,6 +16,9 @@ import RoleSelection from "../pages/RoleSelection";
 import Login from "../pages/Login";
 import Profile from "../pages/Profile";
 import EditProfile from "../pages/EditProfile";
+import Followers from "../pages/Followers";
+import Followings from "../pages/Following";
+import Admins from "../pages/AllAdmins";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -108,6 +111,31 @@ function AppRoutes() {
       <Route path="/register" element={<Register />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/edit-profile" element={<EditProfile />} />
+
+      <Route
+        path="/admin-followers"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <Followers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-followings"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <Followings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admins"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <Admins />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

@@ -7,7 +7,7 @@ import axios from "axios";
 import { logoutUser } from "../api/authApi";
 
 function Navbar() {
-  const { role, setRole, userId} = useAuth();
+  const { role, setRole, userId } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { notifications, markAsRead, removeNotification } = useNotification();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -22,7 +22,7 @@ function Navbar() {
   );
 
   const unread_count = userNotifications.filter(
-    (noti) => noti.isRead === false,
+    (noti) => noti.isRead === false
   ).length;
 
   async function handleLogout() {
@@ -109,7 +109,7 @@ function Navbar() {
           </>
         )}
 
-        {/* Admin Links */}
+        {/* Admin-Only Links */}
         {role === "admin" && (
           <>
             <Link
@@ -131,6 +131,17 @@ function Navbar() {
               }`}
             >
               Add Saree
+            </Link>
+            {/* 🏪 Shops Tab - Restricted to Admins only */}
+            <Link
+              to="/admins"
+              className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
+              }`}
+            >
+              Shops
             </Link>
             <Link
               to="/request"
@@ -206,7 +217,9 @@ function Navbar() {
                 }`}
               >
                 <span
-                  className={`font-serif font-bold text-sm ${theme === "dark" ? "text-rose-400" : "text-rose-950"}`}
+                  className={`font-serif font-bold text-sm ${
+                    theme === "dark" ? "text-rose-400" : "text-rose-950"
+                  }`}
                 >
                   Notifications
                 </span>
@@ -257,8 +270,8 @@ function Navbar() {
                                 ? "text-rose-400"
                                 : "text-rose-900"
                               : theme === "dark"
-                                ? "text-slate-300"
-                                : "text-gray-800"
+                              ? "text-slate-300"
+                              : "text-gray-800"
                           }`}
                         >
                           {notification.title}
@@ -334,7 +347,7 @@ function Navbar() {
                             year: "numeric",
                             month: "short",
                             day: "numeric",
-                          },
+                          }
                         )}
                       </span>
                     </div>
