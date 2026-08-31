@@ -20,3 +20,17 @@ export const getfollowings = async () => {
   return response;
 };
 
+export const isfollowing = async (adminId) => {
+  const response = await API.get(`/favorites/exists/${adminId}`);
+  return response;
+}
+
+export const getFollowersCount = async () => {
+  const response = await API.get("/favorites/followercount");
+  return response.data;
+}
+
+export const getFollowingCount = async () => {
+  const response = await API.get("/favorites/followingcount");
+  return response.data;
+}

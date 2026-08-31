@@ -1,12 +1,61 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { getFollowersCount, getFollowingCount } from "../api/friendsSystem";
 
 function Profile() {
   const { theme } = useTheme();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [loadingCounts, setLoadingCounts] = useState(true);
 
-  if (loading) {
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCounts = async () => {
+      try {
+        setLoadingCounts(true);
+
+        const [followersRes, followingRes] = await Promise.all([
+          getFollowersCount(),
+          getFollowingCount(),
+        ]);
+
+        if (isMounted) {
+          const fCount =
+            typeof followersRes?.data === "number"
+              ? followersRes.data
+              : followersRes?.data?.data ?? followersRes?.count ?? 0;
+
+          const folCount =
+            typeof followingRes?.data === "number"
+              ? followingRes.data
+              : followingRes?.data?.data ?? followingRes?.count ?? 0;
+
+          setFollowersCount(fCount);
+          setFollowingCount(folCount);
+        }
+      } catch (error) {
+        console.error("Failed to fetch followers/following counts:", error);
+      } finally {
+        if (isMounted) {
+          setLoadingCounts(false);
+        }
+      }
+    };
+
+    if (user) {
+      fetchCounts();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  if (authLoading) {
     return (
       <div
         className={`min-h-screen flex items-center justify-center ${
@@ -29,14 +78,6 @@ function Profile() {
       </div>
     );
   }
-
-  // Handle arrays or numeric counts safely
-  const followersCount = Array.isArray(user.followers)
-    ? user.followers.length
-    : user.followers || 0;
-  const followingCount = Array.isArray(user.following)
-    ? user.following.length
-    : user.following || 0;
 
   return (
     <div
@@ -98,7 +139,7 @@ function Profile() {
                 className="text-center sm:text-left hover:opacity-80 transition-opacity cursor-pointer group"
               >
                 <span className="font-bold text-base block sm:inline mr-1 group-hover:text-rose-500 transition-colors">
-                  {followersCount}
+                  {loadingCounts ? "..." : followersCount}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-slate-400 font-medium group-hover:underline">
                   Followers
@@ -110,7 +151,7 @@ function Profile() {
                 className="text-center sm:text-left hover:opacity-80 transition-opacity cursor-pointer group"
               >
                 <span className="font-bold text-base block sm:inline mr-1 group-hover:text-rose-500 transition-colors">
-                  {followingCount}
+                  {loadingCounts ? "..." : followingCount}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-slate-400 font-medium group-hover:underline">
                   Following
