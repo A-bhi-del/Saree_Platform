@@ -29,37 +29,40 @@ function SalePage() {
   };
 
   if (!sale || sale.length === 0) {
-    return (
-      <div
-        className={`flex flex-col items-center justify-center min-h-[60vh] font-serif px-4 transition-colors duration-300 ${
-          isDark ? "text-slate-400 bg-slate-950" : "text-gray-500 bg-gray-50"
+  return (
+    <div
+      className={`min-h-[calc(100dvh-80px)] w-full flex flex-col items-center justify-center font-serif px-4 transition-colors duration-300 overflow-hidden ${
+        isDark ? "text-slate-400 bg-slate-950" : "text-gray-500 bg-gray-50"
+      }`}
+    >
+      <div className="text-4xl mb-3">📢</div>
+      <h2
+        className={`text-xl font-semibold ${
+          isDark ? "text-slate-200" : "text-gray-700"
         }`}
       >
-        <div className="text-4xl mb-3">📢</div>
-        <h2
-          className={`text-xl font-semibold ${isDark ? "text-slate-200" : "text-gray-700"}`}
-        >
-          No Active Sale Campaigns
-        </h2>
-        <p
-          className={`text-sm mt-1 max-w-sm text-center ${isDark ? "text-slate-500" : "text-gray-400"}`}
-        >
-          You haven't launched any promotional sales yet.
-        </p>
-        <Link
-          to="/admin"
-          className={`mt-5 border px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
-            isDark
-              ? "border-rose-400 text-rose-400 hover:bg-rose-950/30"
-              : "border-rose-900 text-rose-900 hover:bg-rose-50"
-          }`}
-        >
-          &larr; Back to Dashboard
-        </Link>
-      </div>
-    );
-  }
-
+        No Active Sale Campaigns
+      </h2>
+      <p
+        className={`text-sm mt-1 max-w-sm text-center ${
+          isDark ? "text-slate-500" : "text-gray-400"
+        }`}
+      >
+        You haven't launched any promotional sales yet.
+      </p>
+      <Link
+        to="/admin"
+        className={`mt-5 border px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${
+          isDark
+            ? "border-rose-400 text-rose-400 hover:bg-rose-950/30"
+            : "border-rose-900 text-rose-900 hover:bg-rose-50"
+        }`}
+      >
+        &larr; Back to Dashboard
+      </Link>
+    </div>
+  );
+}
   return (
     <div
       className={`min-h-screen px-4 md:px-12 py-10 transition-colors duration-300 ${isDark ? "bg-slate-950" : "bg-gray-50"}`}
