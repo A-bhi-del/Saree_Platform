@@ -95,7 +95,7 @@ function Profile() {
           <div className="relative">
             <img
               src={
-                user.profileImage.url ||
+                user.profileImage?.url ||
                 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
               }
               alt={user.name}
@@ -133,7 +133,7 @@ function Profile() {
             </p>
 
             {/* Followers & Following Bar with Navigation Links */}
-            <div className="flex items-center justify-center sm:justify-start gap-6 mt-3 pt-2 border-t border-gray-100 dark:border-slate-700/50">
+            {user.role === "admin" && <div className="flex items-center justify-center sm:justify-start gap-6 mt-3 pt-2 border-t border-gray-100 dark:border-slate-700/50">
               <Link
                 to="/admin-followers"
                 className="text-center sm:text-left hover:opacity-80 transition-opacity cursor-pointer group"
@@ -157,7 +157,7 @@ function Profile() {
                   Following
                 </span>
               </Link>
-            </div>
+            </div>}
           </div>
 
           <Link

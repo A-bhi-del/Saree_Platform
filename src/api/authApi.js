@@ -26,7 +26,13 @@ export const getCurrentUser = async () => {
 };
 
 export const updateProfile = async (data) => {
-  const response = await API.patch("/auth/edit-profile", data);
+  const response = await API.patch("/auth/edit-profile", data,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
   return response;
 };
 

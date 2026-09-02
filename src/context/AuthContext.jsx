@@ -18,8 +18,8 @@ function AuthProvider({ children }) {
     async function fetchUserProfile() {
       try {
         const res = await getCurrentUser();
-        setUserId(res.data.message._id);
-        setUser(res.data.message);
+        setUserId(res.data.data._id);
+        setUser(res.data.data);
       } catch (err) {
         console.error("Failed to fetch profile:", err);
       } finally {

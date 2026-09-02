@@ -7,6 +7,7 @@ function RequestSaree() {
   const { createRequest } = useRequest();
   const { theme } = useTheme();
   const navigate = useNavigate();
+
   const [adminId, setAdminId] = useState("");
   const [sareeId, setSareeId] = useState("");
   const [requestType, setRequestType] = useState("");
@@ -17,12 +18,40 @@ function RequestSaree() {
   const [color, setColor] = useState("");
   const [description, setDescription] = useState("");
   const [budget, setBudget] = useState("");
-  const [image, setImage] = useState("");
+
+  // Local File Upload States (Max Limit: 3 Images)
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState(false);
 
   const isDark = theme === "dark";
+
+  // Handle local image file selection with a strict 3-image limit
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (selectedFiles.length + files.length > 3) {
+      setErrorMsg("Maximum limit is 3 reference images per request.");
+      return;
+    }
+
+    setErrorMsg("");
+    const fileObjects = files.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+    setSelectedFiles((prev) => [...prev, ...fileObjects]);
+  };
+
+  // Remove a selected image file and revoke object URL
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles((prev) => {
+      URL.revokeObjectURL(prev[indexToRemove].previewUrl);
+      return prev.filter((_, idx) => idx !== indexToRemove);
+    });
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -42,21 +71,42 @@ function RequestSaree() {
       return;
     }
 
+    if (selectedFiles.length === 0) {
+      setErrorMsg("At least one reference image is required.");
+      return;
+    }
+
     try {
       setLoading(true);
-      await createRequest({
-        admin: adminId,
-        saree: sareeId,
-        requestType,
-        designName,
-        fabric,
-        color,
-        description,
-        quantity: Number(quantity),
-        budget: Number(budget),
-        image,
-        requiredByDate: requiredByDate || undefined,
+
+      // Create FormData instance for Multer (req.body + req.files)
+      const formData = new FormData();
+      formData.append("admin", adminId.trim());
+      formData.append("saree", sareeId.trim());
+      formData.append("requestType", requestType);
+      formData.append("designName", designName.trim());
+      formData.append("fabric", fabric.trim());
+      formData.append("color", color.trim());
+      formData.append("quantity", String(quantity));
+      formData.append("budget", String(budget));
+
+      if (description.trim()) {
+        formData.append("description", description.trim());
+      }
+      if (requiredByDate) {
+        formData.append("requiredByDate", requiredByDate);
+      }
+
+      // Append raw files under "images" field for req.files array
+      selectedFiles.forEach((fileObj) => {
+        formData.append("images", fileObj.file);
       });
+
+      // Submit via Request Context
+      await createRequest(formData);
+
+      // Revoke preview memory URLs
+      selectedFiles.forEach((fileObj) => URL.revokeObjectURL(fileObj.previewUrl));
 
       setAdminId("");
       setSareeId("");
@@ -68,13 +118,13 @@ function RequestSaree() {
       setColor("");
       setDescription("");
       setBudget("");
-      setImage("");
+      setSelectedFiles([]);
 
       setSuccessMsg(true);
       setTimeout(() => setSuccessMsg(false), 1000);
       navigate("/customer");
     } catch (err) {
-      setErrorMsg(err.message || "Something went wrong.");
+      setErrorMsg(err.response?.data?.message || err.message || "Failed to submit request.");
     } finally {
       setLoading(false);
     }
@@ -100,7 +150,9 @@ function RequestSaree() {
             Request a Saree
           </h2>
           <p
-            className={`text-sm mt-2 ${isDark ? "text-slate-400" : "text-gray-500"}`}
+            className={`text-sm mt-2 ${
+              isDark ? "text-slate-400" : "text-gray-500"
+            }`}
           >
             Share your dream design or restock preference, and our artisans will
             craft it for you.
@@ -138,7 +190,9 @@ function RequestSaree() {
             {/* Target Admin ID */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Admin ID *
               </label>
@@ -158,7 +212,9 @@ function RequestSaree() {
             {/* Saree ID */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Saree Reference ID *
               </label>
@@ -178,7 +234,9 @@ function RequestSaree() {
             {/* Request Type */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Request Type *
               </label>
@@ -201,7 +259,9 @@ function RequestSaree() {
             {/* Design Name */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Design / Pattern Name *
               </label>
@@ -221,7 +281,9 @@ function RequestSaree() {
             {/* Required By Date */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Required By Date
               </label>
@@ -240,7 +302,9 @@ function RequestSaree() {
             {/* Quantity */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Quantity Needed *
               </label>
@@ -261,7 +325,9 @@ function RequestSaree() {
             {/* Fabric */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Fabric Material *
               </label>
@@ -281,7 +347,9 @@ function RequestSaree() {
             {/* Color */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Color / Shade *
               </label>
@@ -301,7 +369,9 @@ function RequestSaree() {
             {/* Budget */}
             <div className="flex flex-col gap-1.5">
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+                className={`text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? "text-slate-400" : "text-gray-600"
+                }`}
               >
                 Maximum Budget (₹) *
               </label>
@@ -318,31 +388,88 @@ function RequestSaree() {
               />
             </div>
 
-            {/* Reference Image */}
-            <div className="flex flex-col gap-1.5">
+            {/* Reference Image Upload Area (Max 3) */}
+            <div className="flex flex-col gap-1.5 md:col-span-2">
+              <div className="flex justify-between items-center">
+                <label
+                  className={`text-xs font-semibold uppercase tracking-wider ${
+                    isDark ? "text-slate-400" : "text-gray-600"
+                  }`}
+                >
+                  Reference Images * (Max 3)
+                </label>
+                <span className="text-xs text-amber-500 font-semibold">
+                  {selectedFiles.length} / 3 Selected
+                </span>
+              </div>
+
+              {/* Drag & Drop File Box */}
               <label
-                className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
-              >
-                Reference Image URL
-              </label>
-              <input
-                type="text"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                placeholder="Paste an online image address"
-                className={`w-full px-4 py-2.5 border rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-rose-500 transition-all ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 text-slate-100"
-                    : "bg-gray-50 border-gray-200 text-gray-900"
+                className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                  selectedFiles.length >= 3
+                    ? "opacity-50 cursor-not-allowed"
+                    : isDark
+                    ? "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
+                    : "border-gray-200 bg-gray-50 hover:bg-gray-100"
                 }`}
-              />
+              >
+                <div className="flex flex-col items-center justify-center pt-2 pb-3">
+                  <span className="text-2xl mb-1">📸</span>
+                  <p className="text-xs font-semibold">
+                    Click to browse or drop reference images here
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-1">
+                    PNG, JPG, WEBP up to 10MB each
+                  </p>
+                </div>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  disabled={selectedFiles.length >= 3 || loading}
+                  className="hidden"
+                />
+              </label>
+
+              {/* Thumbnails Preview */}
+              {selectedFiles.length > 0 && (
+                <div className="flex flex-wrap gap-3 mt-3">
+                  {selectedFiles.map((fileObj, index) => (
+                    <div
+                      key={index}
+                      className="relative group w-20 h-24 rounded-lg overflow-hidden border border-slate-700 shadow-sm"
+                    >
+                      <img
+                        src={fileObj.previewUrl}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        disabled={loading}
+                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shadow cursor-pointer disabled:opacity-50"
+                        title="Remove image"
+                      >
+                        ✕
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] text-center py-0.5">
+                        #{index + 1}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Description */}
           <div className="flex flex-col gap-1.5">
             <label
-              className={`text-xs font-semibold uppercase tracking-wider ${isDark ? "text-slate-400" : "text-gray-600"}`}
+              className={`text-xs font-semibold uppercase tracking-wider ${
+                isDark ? "text-slate-400" : "text-gray-600"
+              }`}
             >
               Description / Notes
             </label>
@@ -363,15 +490,22 @@ function RequestSaree() {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 px-6 rounded-lg text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
+            className={`w-full py-3 px-6 rounded-lg text-sm font-semibold tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-2 ${
+              loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
             } ${
               isDark
                 ? "bg-rose-800 hover:bg-rose-700 text-white"
                 : "bg-rose-900 hover:bg-rose-950 text-white"
             }`}
           >
-            {loading ? "Submitting..." : "Submit Request"}
+            {loading ? (
+              <>
+                <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                Submitting Request...
+              </>
+            ) : (
+              "Submit Request"
+            )}
           </button>
         </form>
       </div>

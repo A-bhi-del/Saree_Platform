@@ -5,11 +5,9 @@ import { useTheme } from "../context/ThemeContext";
 function FavouriteCard({ favourite, isDark, removeFavourites }) {
   // Support both image array and single image fallbacks
   const imageList =
-    Array.isArray(favourite.images) && favourite.images.length > 0
-      ? favourite.images
-      : favourite.image
-        ? [favourite.image]
-        : ["https://placehold.co/400x500?text=No+Saree+Image"];
+  favourite.images?.length > 0
+    ? favourite.images.map((image) => image.url)
+    : ["https://placehold.co/400x500?text=No+Saree+Image"];
 
   const [activeImgIdx, setActiveImgIdx] = useState(0);
 
