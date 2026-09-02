@@ -19,11 +19,9 @@ function SareeCard({
   deleteSaree,
 }) {
   const imageList =
-    Array.isArray(saree.images) && saree.images.length > 0
-      ? saree.images
-      : saree.image
-      ? [saree.image]
-      : ["https://placehold.co/400x500?text=No+Saree+Image"];
+  saree.images?.length > 0
+    ? saree.images.map((image) => image.url)
+    : ["https://placehold.co/400x500?text=No+Saree+Image"];
 
   const [activeImgIdx, setActiveImgIdx] = useState(0);
 

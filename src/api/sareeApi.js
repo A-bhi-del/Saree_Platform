@@ -4,7 +4,14 @@ export const fetchSareesApi = (params) => API.get("/sarees", { params });
 
 export const fetchSareeByIdApi = (id) => API.get(`/sarees/${id}`);
 
-export const createSareeApi = (sareeData) => API.post("/sarees", sareeData);
+export const createSareeApi = async (formData) => {
+  const response = await API.post("/sarees", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response;
+};
 
 export const updateSareeApi = (id, sareeData) => API.put(`/sarees/${id}`, sareeData);
 

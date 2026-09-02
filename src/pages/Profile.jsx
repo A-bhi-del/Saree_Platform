@@ -95,7 +95,7 @@ function Profile() {
           <div className="relative">
             <img
               src={
-                user.profileImage ||
+                user.profileImage.url ||
                 "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
               }
               alt={user.name}
