@@ -19,6 +19,7 @@ import EditProfile from "../pages/EditProfile";
 import Followers from "../pages/Followers";
 import Followings from "../pages/Following";
 import Admins from "../pages/AllAdmins";
+import AllActiveSale from "../pages/All_active_sales_page";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -133,6 +134,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRole="admin">
             <Admins />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/all-active-sales"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <AllActiveSale />
           </ProtectedRoute>
         }
       />

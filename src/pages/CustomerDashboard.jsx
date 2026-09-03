@@ -1,9 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useRequest } from "../context/RequestContext";
 import { useTheme } from "../context/ThemeContext";
 
 function CustomerRequestCard({ request, isDark }) {
-  // Normalize images array to handle legacy 'image' string field as fallback
   const imageList =
     Array.isArray(request.images) && request.images.length > 0
       ? request.images.map((img) => (typeof img === "string" ? img : img.url))
@@ -295,61 +295,44 @@ function CustomerDashboard() {
 
   const isDark = theme === "dark";
 
-  if (requests.length === 0) {
-    return (
-      <div
-        className={`flex flex-col items-center justify-center min-h-[60vh] font-serif transition-colors duration-300 ${
-          isDark ? "bg-slate-950 text-slate-400" : "bg-gray-50 text-gray-500"
-        }`}
-      >
-        <div className="text-4xl mb-3">🛍️</div>
-        <h2
-          className={`text-xl font-semibold ${
-            isDark ? "text-slate-200" : "text-gray-700"
-          }`}
-        >
-          No Requests Found
-        </h2>
-        <p
-          className={`text-sm mt-1 ${
-            isDark ? "text-slate-500" : "text-gray-400"
-          }`}
-        >
-          You haven't submitted any custom design or restock requests yet.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div
       className={`min-h-screen px-4 md:px-12 py-10 transition-colors duration-300 ${
         isDark ? "bg-slate-950" : "bg-gray-50"
       }`}
     >
-      {/* Title Header */}
+      {/* Title Header with Active Sales CTA */}
       <div
-        className={`mb-10 border-b pb-5 ${
+        className={`mb-10 border-b pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4 ${
           isDark ? "border-slate-800" : "border-gray-200"
         }`}
       >
-        <h1
-          className={`text-2xl font-bold font-serif uppercase tracking-wide ${
-            isDark ? "text-slate-100" : "text-gray-800"
-          }`}
+        <div>
+          <h1
+            className={`text-2xl font-bold font-serif uppercase tracking-wide ${
+              isDark ? "text-slate-100" : "text-gray-800"
+            }`}
+          >
+            My Account Dashboard
+          </h1>
+          <p
+            className={`text-sm mt-1 ${
+              isDark ? "text-slate-400" : "text-gray-500"
+            }`}
+          >
+            Track your custom weave orders, style updates, and restock tickets.
+          </p>
+        </div>
+
+        <Link
+          to="/all-active-sales"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white self-start md:self-auto"
         >
-          My Account Dashboard
-        </h1>
-        <p
-          className={`text-sm mt-1 ${
-            isDark ? "text-slate-400" : "text-gray-500"
-          }`}
-        >
-          Track your custom weave orders, style updates, and restock tickets.
-        </p>
+          <span>🔥 View All Active Sales</span>
+          <span className="text-sm">→</span>
+        </Link>
       </div>
 
-      {/* Analytics Summary Counter Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
         {/* Total Card */}
         <div
@@ -458,15 +441,41 @@ function CustomerDashboard() {
           Request History Tracking
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {requests.map((request) => (
-            <CustomerRequestCard
-              key={request._id}
-              request={request}
-              isDark={isDark}
-            />
-          ))}
-        </div>
+        {requests.length === 0 ? (
+          <div
+            className={`flex flex-col items-center justify-center p-12 rounded-2xl border text-center font-serif transition-colors duration-300 ${
+              isDark
+                ? "bg-slate-900 border-slate-800 text-slate-400"
+                : "bg-white border-gray-100 text-gray-500"
+            }`}
+          >
+            <div className="text-4xl mb-3">🛍️</div>
+            <h2
+              className={`text-xl font-semibold ${
+                isDark ? "text-slate-200" : "text-gray-700"
+              }`}
+            >
+              No Requests Found
+            </h2>
+            <p
+              className={`text-sm mt-1 ${
+                isDark ? "text-slate-500" : "text-gray-400"
+              }`}
+            >
+              You haven't submitted any custom design or restock requests yet.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {requests.map((request) => (
+              <CustomerRequestCard
+                key={request._id}
+                request={request}
+                isDark={isDark}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
