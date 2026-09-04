@@ -20,6 +20,7 @@ import Followers from "../pages/Followers";
 import Followings from "../pages/Following";
 import Admins from "../pages/AllAdmins";
 import AllActiveSale from "../pages/All_active_sales_page";
+import AddToCart from "../pages/AddToCart";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -142,6 +143,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRole="customer">
             <AllActiveSale />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cart"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <AddToCart />
           </ProtectedRoute>
         }
       />

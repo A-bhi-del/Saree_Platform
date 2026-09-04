@@ -10,22 +10,25 @@ import "./index.css";
 import { NotificationProvider } from "./context/NotificationContext.jsx";
 import { SaleProvider } from "./context/SaleContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import { CartProvider } from "./context/CartContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
       <NotificationProvider>
-        <SareeProvider>
-          <RequestProvider>
-            <FavouriteProvider>
-              <SaleProvider>
-                <ThemeProvider>
-                  <App/>
-                </ThemeProvider>
-              </SaleProvider>
-            </FavouriteProvider>
-          </RequestProvider>
-        </SareeProvider>
+        <CartProvider>
+          <SareeProvider>
+            <RequestProvider>
+              <FavouriteProvider>
+                <SaleProvider>
+                  <ThemeProvider>
+                    <App /> 
+                  </ThemeProvider>
+                </SaleProvider>
+              </FavouriteProvider>
+            </RequestProvider>
+          </SareeProvider>
+        </CartProvider>
       </NotificationProvider>
     </AuthProvider>
   </BrowserRouter>,

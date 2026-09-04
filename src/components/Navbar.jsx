@@ -48,7 +48,7 @@ function Navbar() {
       {/* Brand Logo */}
       <div className="mb-4 md:mb-0">
         <Link
-          to="/"
+          to="/sarees"
           className={`text-2xl font-bold tracking-widest uppercase font-serif transition-colors ${
             theme === "dark"
               ? "text-rose-400 hover:text-rose-300"
