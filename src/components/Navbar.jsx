@@ -1,15 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
+import { useCart } from "../context/CartContext";
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import axios from "axios";
 import { logoutUser } from "../api/authApi";
 
 function Navbar() {
-  const { role, setRole, userId } = useAuth();
+  const { role, setRole, userId, user, setUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { notifications, markAsRead, removeNotification } = useNotification();
+  const { cartCount } = useCart();
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
@@ -33,6 +35,7 @@ function Navbar() {
     } finally {
       localStorage.removeItem("user");
       setRole(null);
+      setUser(null); // Clear user on logout
       navigate("/");
     }
   }
@@ -74,7 +77,7 @@ function Navbar() {
         </Link>
 
         {/* Customer Links */}
-        {role === "customer" && (
+        {role === "customer" && user && (
           <>
             <Link
               to="/customer"
@@ -85,6 +88,31 @@ function Navbar() {
               }`}
             >
               Dashboard
+            </Link>
+            <Link
+              to="/cart"
+              className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 relative ${
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
+              }`}
+            >
+              🛒 Cart
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/orders"
+              className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
+              }`}
+            >
+              📦 Orders
             </Link>
             <Link
               to="/favourites-page"
@@ -110,7 +138,7 @@ function Navbar() {
         )}
 
         {/* Admin-Only Links */}
-        {role === "admin" && (
+        {role === "admin" && user && (
           <>
             <Link
               to="/admin"
@@ -131,6 +159,16 @@ function Navbar() {
               }`}
             >
               Add Saree
+            </Link>
+            <Link
+              to="/admin/orders"
+              className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
+                theme === "dark"
+                  ? "text-slate-200 hover:text-rose-400"
+                  : "text-gray-700"
+              }`}
+            >
+              📦 Orders
             </Link>
             {/* 🏪 Shops Tab - Restricted to Admins only */}
             <Link
@@ -167,7 +205,7 @@ function Navbar() {
         )}
 
         {/* 👤 Profile Link (Logged-in Users Only) */}
-        {role !== null && (
+        {user && (
           <Link
             to="/profile"
             className={`flex items-center gap-1.5 border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 ${
@@ -374,7 +412,7 @@ function Navbar() {
         </button>
 
         {/* Auth Action Button */}
-        {role !== null ? (
+        {user ? (
           <button
             onClick={handleLogout}
             className={`ml-2 px-5 py-2 text-xs font-semibold uppercase tracking-wider rounded transition-colors duration-200 shadow-md hover:shadow-lg cursor-pointer ${

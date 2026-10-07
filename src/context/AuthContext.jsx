@@ -20,8 +20,14 @@ function AuthProvider({ children }) {
         const res = await getCurrentUser();
         setUserId(res.data.data._id);
         setUser(res.data.data);
+        // Set role from the fetched user data
+        if (res.data.data?.role) {
+          setRole(res.data.data.role);
+        }
       } catch (err) {
         console.error("Failed to fetch profile:", err);
+        // Clear role if user fetch fails (not logged in)
+        setRole(null);
       } finally {
         setLoading(false);
       }

@@ -21,6 +21,11 @@ import Followings from "../pages/Following";
 import Admins from "../pages/AllAdmins";
 import AllActiveSale from "../pages/All_active_sales_page";
 import AddToCart from "../pages/AddToCart";
+import Checkout from "../pages/Checkout";
+import OrderSuccess from "../pages/OrderSuccess";
+import MyOrders from "../pages/MyOrders";
+import AdminOrders from "../pages/AdminOrders";
+import OrderDetails from "../pages/OrderDetails";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -151,6 +156,46 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRole="customer">
             <AddToCart />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/checkout"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <Checkout />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order-success"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <OrderSuccess />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <MyOrders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/orders"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <AdminOrders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/order/:id"
+        element={
+          <ProtectedRoute>
+            <OrderDetails />
           </ProtectedRoute>
         }
       />

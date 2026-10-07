@@ -11,7 +11,7 @@ import { useNotification } from "../context/NotificationContext";
 import { loginUser } from "../api/authApi";
 
 function Login() {
-  const { role, setUser } = useAuth();
+  const { role, setUser, setRole } = useAuth();
   const { refreshSale } = useSale();
   const {fetchRequests} = useRequest();
   const {fetchNotifications} = useNotification();
@@ -62,6 +62,9 @@ function Login() {
         setError("Invalid response structure from server!");
         return;
       }
+
+      // Set the role from the actual user data returned by backend
+      setRole(user.role);
 
       await getSarees();
       await refreshSale();
