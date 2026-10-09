@@ -4,6 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
 import { createOrder } from "../api/orderApi";
 import { createPaymentOrder, verifyPayment } from "../api/paymentApi";
+import { applyCoupon, removeCoupon } from "../api/couponApi";
 import { loadRazorpayScript, openRazorpayCheckout } from "../utils/razorpay";
 
 function Checkout() {
@@ -12,10 +13,8 @@ function Checkout() {
   const isDark = theme === "dark";
   const navigate = useNavigate();
 
-  // Generate idempotency key once per checkout session
   const [idempotencyKey] = useState(() => crypto.randomUUID());
 
-  // Form state
   const [shippingAddress, setShippingAddress] = useState({
     name: "",
     phone: "",
@@ -30,6 +29,12 @@ function Checkout() {
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
 
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
   // Cart data
   const items = cart?.items || cart?.cartItems || [];
 
@@ -43,8 +48,9 @@ function Checkout() {
     return acc + effectivePrice * (item.quantity || 1);
   }, 0);
 
+  const couponDiscount = appliedCoupon?.discountAmount || 0;
   const shippingCost = subtotal > 5000 || subtotal === 0 ? 0 : 250;
-  const grandTotal = subtotal + shippingCost;
+  const grandTotal = subtotal - couponDiscount + shippingCost;
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -72,6 +78,46 @@ function Checkout() {
         ...prev,
         [name]: "",
       }));
+    }
+  };
+
+  // Handle coupon application
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    setCouponError("");
+
+    try {
+      const response = await applyCoupon(couponCode.trim());
+      const data = response.data?.data || response.data;
+
+      setAppliedCoupon(data);
+      setCouponError("");
+      setOrderError("");
+    } catch (error) {
+      console.error("Apply coupon error:", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to apply coupon";
+      setCouponError(errorMessage);
+      setAppliedCoupon(null);
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  // Handle coupon removal
+  const handleRemoveCoupon = async () => {
+    try {
+      await removeCoupon();
+      setAppliedCoupon(null);
+      setCouponCode("");
+      setCouponError("");
+    } catch (error) {
+      console.error("Remove coupon error:", error);
     }
   };
 
@@ -120,6 +166,7 @@ function Checkout() {
       const orderData = {
         shippingAddress,
         paymentMethod: "COD",
+        couponCode: appliedCoupon ? appliedCoupon.coupon.code : undefined,
       };
 
       const response = await createOrder(orderData, idempotencyKey);
@@ -158,6 +205,7 @@ function Checkout() {
       const orderData = {
         shippingAddress,
         paymentMethod: "ONLINE",
+        couponCode: appliedCoupon ? appliedCoupon.coupon.code : undefined,
       };
 
       const orderResponse = await createOrder(orderData, idempotencyKey);
@@ -508,6 +556,93 @@ function Checkout() {
               </div>
             </div>
 
+            {/* Coupon Section */}
+            <div
+              className={`rounded-2xl border p-6 ${
+                isDark
+                  ? "bg-slate-900 border-slate-800 text-slate-100"
+                  : "bg-white border-gray-100 text-gray-800"
+              }`}
+            >
+              <h2 className="text-lg font-bold font-serif uppercase tracking-wider mb-4 pb-3 border-b border-gray-200 dark:border-slate-800">
+                Apply Coupon
+              </h2>
+
+              {appliedCoupon ? (
+                <div className="space-y-3">
+                  {/* Applied Coupon Display */}
+                  <div className="p-4 rounded-lg border-2 border-emerald-500 bg-emerald-500/5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">✅</span>
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                            {appliedCoupon.coupon.code}
+                          </span>
+                        </div>
+                        {appliedCoupon.coupon.description && (
+                          <p className={`text-sm mt-1 ${isDark ? "text-slate-300" : "text-gray-600"}`}>
+                            {appliedCoupon.coupon.description}
+                          </p>
+                        )}
+                        <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-2">
+                          You saved ₹{appliedCoupon.discountAmount.toLocaleString()}!
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        disabled={isProcessingOrder}
+                        className="text-red-500 hover:text-red-600 font-semibold text-sm disabled:opacity-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Coupon Input */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        setCouponError("");
+                      }}
+                      disabled={isApplyingCoupon || isProcessingOrder}
+                      placeholder="Enter coupon code"
+                      className={`flex-1 px-4 py-2.5 rounded-lg border text-sm uppercase ${
+                        isDark
+                          ? "bg-slate-800 border-slate-700 text-slate-100 focus:border-rose-500"
+                          : "bg-white border-gray-200 text-gray-800 focus:border-rose-500"
+                      } focus:outline-none focus:ring-2 focus:ring-rose-500/20 disabled:opacity-50`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={!couponCode.trim() || isApplyingCoupon || isProcessingOrder}
+                      className={`px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap ${
+                        isDark
+                          ? "bg-rose-700 hover:bg-rose-600 text-white"
+                          : "bg-rose-900 hover:bg-rose-950 text-white"
+                      } disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                    >
+                      {isApplyingCoupon ? "Applying..." : "Apply"}
+                    </button>
+                  </div>
+
+                  {/* Coupon Error */}
+                  {couponError && (
+                    <div className="p-3 rounded-lg text-sm bg-red-500/10 text-red-500 border border-red-500/20">
+                      {couponError}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Payment Method Section */}
             <div
               className={`rounded-2xl border p-6 ${
@@ -643,6 +778,18 @@ function Checkout() {
                   </span>
                   <span className="font-bold">₹{subtotal.toLocaleString()}</span>
                 </div>
+
+                {appliedCoupon && appliedCoupon.discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                    <span className="flex items-center gap-1">
+                      <span>🎟️</span>
+                      Coupon Discount
+                    </span>
+                    <span className="font-bold">
+                      -₹{appliedCoupon.discountAmount.toLocaleString()}
+                    </span>
+                  </div>
+                )}
 
                 <div className="flex justify-between">
                   <span className={isDark ? "text-slate-400" : "text-gray-500"}>

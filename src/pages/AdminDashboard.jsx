@@ -315,6 +315,39 @@ function AdminDashboard() {
               Browse Store &rarr;
             </span>
           </Link>
+
+          <Link
+            to="/admin/coupons"
+            className={`p-5 border rounded-xl transition-all flex flex-col justify-between group cursor-pointer shadow-sm ${
+              theme === "dark"
+                ? "bg-slate-900 border-slate-800 hover:border-emerald-500"
+                : "bg-white border-gray-200 hover:border-emerald-600"
+            }`}
+          >
+            <div>
+              <span
+                className={`font-serif font-bold text-base block transition-colors ${
+                  theme === "dark"
+                    ? "text-slate-200 group-hover:text-emerald-400"
+                    : "text-gray-800 group-hover:text-emerald-700"
+                }`}
+              >
+                🎟️ Manage Coupons
+              </span>
+              <span
+                className={`text-xs mt-1 block ${theme === "dark" ? "text-slate-400" : "text-gray-400"}`}
+              >
+                Create discount codes, track redemptions and usage statistics.
+              </span>
+            </div>
+            <span
+              className={`text-xs font-bold mt-4 inline-block group-hover:translate-x-1 transition-transform ${
+                theme === "dark" ? "text-emerald-400" : "text-emerald-600"
+              }`}
+            >
+              Open Manager &rarr;
+            </span>
+          </Link>
         </div>
       </div>
 

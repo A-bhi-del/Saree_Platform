@@ -26,6 +26,9 @@ import OrderSuccess from "../pages/OrderSuccess";
 import MyOrders from "../pages/MyOrders";
 import AdminOrders from "../pages/AdminOrders";
 import OrderDetails from "../pages/OrderDetails";
+import AdminCoupons from "../pages/AdminCoupons";
+import CreateCoupon from "../pages/CreateCoupon";
+import EditCoupon from "../pages/EditCoupon";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -196,6 +199,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <OrderDetails />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/coupons"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <AdminCoupons />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/coupons/create"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <CreateCoupon />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/coupons/:id/edit"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <EditCoupon />
           </ProtectedRoute>
         }
       />
