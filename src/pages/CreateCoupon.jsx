@@ -115,9 +115,19 @@ function CreateCoupon() {
       navigate("/admin/coupons");
     } catch (err) {
       console.error("Error creating coupon:", err);
-      setError(
-        err.response?.data?.message || "Failed to create coupon. Please try again."
-      );
+      console.error("Error response:", err.response?.data);
+      
+      // Handle validation errors
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const validationErrors = err.response.data.errors
+          .map(e => `${e.path.join('.')}: ${e.message}`)
+          .join(', ');
+        setError(`Validation failed: ${validationErrors}`);
+      } else {
+        setError(
+          err.response?.data?.message || "Failed to create coupon. Please try again."
+        );
+      }
     } finally {
       setLoading(false);
     }

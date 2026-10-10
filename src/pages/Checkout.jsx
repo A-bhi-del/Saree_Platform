@@ -4,7 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useTheme } from "../context/ThemeContext";
 import { createOrder } from "../api/orderApi";
 import { createPaymentOrder, verifyPayment } from "../api/paymentApi";
-import { applyCoupon, removeCoupon } from "../api/couponApi";
+import { applyCoupon, removeCoupon, getAvailableCoupons } from "../api/couponApi";
 import { loadRazorpayScript, openRazorpayCheckout } from "../utils/razorpay";
 
 function Checkout() {
@@ -34,6 +34,9 @@ function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [loadingCoupons, setLoadingCoupons] = useState(false);
+  const [showAvailableCoupons, setShowAvailableCoupons] = useState(false);
 
   // Cart data
   const items = cart?.items || cart?.cartItems || [];
@@ -64,6 +67,29 @@ function Checkout() {
     loadRazorpayScript();
   }, []);
 
+  // Fetch available coupons
+  const fetchAvailableCoupons = async () => {
+    if (items.length === 0) return;
+
+    setLoadingCoupons(true);
+    try {
+      const response = await getAvailableCoupons();
+      const data = response.data?.data || response.data || [];
+      setAvailableCoupons(data);
+    } catch (error) {
+      console.error("Error fetching available coupons:", error);
+    } finally {
+      setLoadingCoupons(false);
+    }
+  };
+
+  // Load available coupons when component mounts or cart changes
+  useEffect(() => {
+    if (items.length > 0 && !appliedCoupon) {
+      fetchAvailableCoupons();
+    }
+  }, [items.length]);
+
   // Handle form field changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -82,8 +108,10 @@ function Checkout() {
   };
 
   // Handle coupon application
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
+  const handleApplyCoupon = async (code = null) => {
+    const codeToApply = code || couponCode;
+    
+    if (!codeToApply.trim()) {
       setCouponError("Please enter a coupon code");
       return;
     }
@@ -92,12 +120,18 @@ function Checkout() {
     setCouponError("");
 
     try {
-      const response = await applyCoupon(couponCode.trim());
+      const response = await applyCoupon(codeToApply.trim());
       const data = response.data?.data || response.data;
 
       setAppliedCoupon(data);
       setCouponError("");
       setOrderError("");
+      setShowAvailableCoupons(false);
+      
+      // If code was passed (clicked from available coupons), update the input field
+      if (code) {
+        setCouponCode(code);
+      }
     } catch (error) {
       console.error("Apply coupon error:", error);
       const errorMessage =
@@ -116,6 +150,8 @@ function Checkout() {
       setAppliedCoupon(null);
       setCouponCode("");
       setCouponError("");
+      // Refresh available coupons
+      fetchAvailableCoupons();
     } catch (error) {
       console.error("Remove coupon error:", error);
     }
@@ -621,7 +657,7 @@ function Checkout() {
                     />
                     <button
                       type="button"
-                      onClick={handleApplyCoupon}
+                      onClick={() => handleApplyCoupon()}
                       disabled={!couponCode.trim() || isApplyingCoupon || isProcessingOrder}
                       className={`px-6 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap ${
                         isDark
@@ -637,6 +673,121 @@ function Checkout() {
                   {couponError && (
                     <div className="p-3 rounded-lg text-sm bg-red-500/10 text-red-500 border border-red-500/20">
                       {couponError}
+                    </div>
+                  )}
+
+                  {/* Available Coupons Toggle */}
+                  {availableCoupons.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAvailableCoupons(!showAvailableCoupons)}
+                      className={`w-full text-left py-2 px-3 rounded-lg text-sm font-semibold flex items-center justify-between ${
+                        isDark
+                          ? "bg-slate-800 hover:bg-slate-700 text-slate-200"
+                          : "bg-gray-50 hover:bg-gray-100 text-gray-700"
+                      } transition-colors`}
+                    >
+                      <span className="flex items-center gap-2">
+                        🎟️ View {availableCoupons.length} Available Coupon{availableCoupons.length !== 1 ? 's' : ''}
+                      </span>
+                      <span className="text-lg">{showAvailableCoupons ? '▼' : '▶'}</span>
+                    </button>
+                  )}
+
+                  {/* Available Coupons List */}
+                  {showAvailableCoupons && availableCoupons.length > 0 && (
+                    <div className="space-y-2 mt-3 max-h-96 overflow-y-auto">
+                      {availableCoupons.map((coupon) => (
+                        <div
+                          key={coupon._id}
+                          className={`p-4 rounded-lg border-2 ${
+                            coupon.meetsMinimum
+                              ? isDark
+                                ? "border-rose-700/50 bg-rose-900/10 hover:bg-rose-900/20"
+                                : "border-rose-200 bg-rose-50 hover:bg-rose-100"
+                              : isDark
+                              ? "border-slate-700 bg-slate-800/50"
+                              : "border-gray-200 bg-gray-50"
+                          } transition-colors cursor-pointer`}
+                          onClick={() => coupon.meetsMinimum && handleApplyCoupon(coupon.code)}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-base text-rose-600 dark:text-rose-400">
+                                  {coupon.code}
+                                </span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                  isDark ? "bg-slate-700 text-slate-300" : "bg-gray-200 text-gray-600"
+                                }`}>
+                                  {coupon.shopName}
+                                </span>
+                              </div>
+                              
+                              {coupon.description && (
+                                <p className={`text-sm mt-1 ${isDark ? "text-slate-300" : "text-gray-600"}`}>
+                                  {coupon.description}
+                                </p>
+                              )}
+
+                              <div className="mt-2 space-y-1">
+                                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                  💰 Save up to ₹{coupon.potentialDiscount.toLocaleString()}
+                                </p>
+                                
+                                {!coupon.meetsMinimum && (
+                                  <p className="text-xs text-orange-600 dark:text-orange-400">
+                                    ⚠️ Add ₹{(coupon.minOrderAmount - coupon.totalEligibleAmount).toLocaleString()} more to use this coupon
+                                  </p>
+                                )}
+
+                                <p className={`text-xs ${isDark ? "text-slate-400" : "text-gray-500"}`}>
+                                  Valid for {coupon.eligibleItemsCount} item{coupon.eligibleItemsCount !== 1 ? 's' : ''} in your cart
+                                </p>
+
+                                {coupon.minOrderAmount > 0 && (
+                                  <p className={`text-xs ${isDark ? "text-slate-400" : "text-gray-500"}`}>
+                                    Min order: ₹{coupon.minOrderAmount.toLocaleString()}
+                                  </p>
+                                )}
+
+                                {coupon.firstOrderOnly && (
+                                  <p className={`text-xs ${isDark ? "text-slate-400" : "text-gray-500"}`}>
+                                    🆕 First order only
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            {coupon.meetsMinimum && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleApplyCoupon(coupon.code);
+                                }}
+                                disabled={isApplyingCoupon}
+                                className={`px-4 py-2 rounded-lg font-semibold text-xs uppercase ${
+                                  isDark
+                                    ? "bg-rose-700 hover:bg-rose-600 text-white"
+                                    : "bg-rose-900 hover:bg-rose-950 text-white"
+                                } disabled:opacity-50 transition-colors`}
+                              >
+                                Apply
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {loadingCoupons && (
+                    <div className="text-center py-4">
+                      <div className="inline-block animate-spin w-5 h-5 border-2 border-rose-500 border-t-transparent rounded-full" />
+                      <p className={`text-sm mt-2 ${isDark ? "text-slate-400" : "text-gray-500"}`}>
+                        Loading coupons...
+                      </p>
                     </div>
                   )}
                 </div>

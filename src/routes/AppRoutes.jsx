@@ -29,6 +29,7 @@ import OrderDetails from "../pages/OrderDetails";
 import AdminCoupons from "../pages/AdminCoupons";
 import CreateCoupon from "../pages/CreateCoupon";
 import EditCoupon from "../pages/EditCoupon";
+import SareeDetail from "../pages/SareeDetail";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -64,6 +65,7 @@ function AppRoutes() {
       />
 
       <Route path="/sarees" element={<Sarees />} />
+      <Route path="/saree/:id" element={<SareeDetail />} />
 
       <Route
         path="/request-saree"

@@ -60,7 +60,8 @@ function SareeCard({
 
   return (
     <div
-      className={`rounded-2xl overflow-hidden shadow-sm hover:shadow-md border flex flex-col group transition-all duration-300 ${
+      onClick={() => navigate(`/saree/${sareeId}`)}
+      className={`rounded-2xl overflow-hidden shadow-sm hover:shadow-md border flex flex-col group transition-all duration-300 cursor-pointer ${
         isDark ? "bg-slate-900 border-slate-800/80" : "bg-white border-gray-100"
       }`}
     >
@@ -235,7 +236,10 @@ function SareeCard({
         >
           {role === "customer" && addFavourites && (
             <button
-              onClick={() => addFavourites(saree)}
+              onClick={(e) => {
+                e.stopPropagation();
+                addFavourites(saree);
+              }}
               className={`w-full flex items-center justify-center gap-2 border px-4 py-2 text-xs font-bold uppercase rounded-xl transition-all cursor-pointer ${
                 isDark
                   ? "border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-slate-950"
@@ -250,7 +254,10 @@ function SareeCard({
             <div className="w-full flex gap-3">
               {navigate && (
                 <button
-                  onClick={() => navigate(`/edit-saree/${sareeId}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/edit-saree/${sareeId}`);
+                  }}
                   className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
                     isDark
                       ? "border-amber-900/50 text-amber-400 hover:bg-amber-950/30"
@@ -262,7 +269,10 @@ function SareeCard({
               )}
               {deleteSaree && (
                 <button
-                  onClick={() => deleteSaree(sareeId)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteSaree(sareeId);
+                  }}
                   className={`w-1/2 flex items-center justify-center border px-3 py-2 text-xs font-bold uppercase rounded-xl transition-colors cursor-pointer ${
                     isDark
                       ? "bg-red-950/40 hover:bg-red-900/30 text-red-400 border-red-900/40"

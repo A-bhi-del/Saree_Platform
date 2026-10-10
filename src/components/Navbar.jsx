@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
-import { useCart } from "../context/CartContext";
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 import axios from "axios";
@@ -11,7 +10,6 @@ function Navbar() {
   const { role, setRole, userId, user, setUser } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { notifications, markAsRead, removeNotification } = useNotification();
-  const { cartCount } = useCart();
   const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
 
@@ -88,21 +86,6 @@ function Navbar() {
               }`}
             >
               Dashboard
-            </Link>
-            <Link
-              to="/cart"
-              className={`border-b-2 border-transparent hover:border-amber-500 pb-1 transition-all duration-200 relative ${
-                theme === "dark"
-                  ? "text-slate-200 hover:text-rose-400"
-                  : "text-gray-700"
-              }`}
-            >
-              🛒 Cart
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
             </Link>
             <Link
               to="/orders"

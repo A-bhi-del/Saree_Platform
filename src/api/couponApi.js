@@ -16,6 +16,12 @@ export const removeCoupon = async () => {
   return response;
 };
 
+// Get available coupons for cart
+export const getAvailableCoupons = async () => {
+  const response = await API.get("/coupons/available");
+  return response;
+};
+
 // ADMIN ENDPOINTS
 export const createCoupon = async (couponData) => {
   const response = await API.post("/coupons/admin", couponData);
