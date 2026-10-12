@@ -30,6 +30,7 @@ import AdminCoupons from "../pages/AdminCoupons";
 import CreateCoupon from "../pages/CreateCoupon";
 import EditCoupon from "../pages/EditCoupon";
 import SareeDetail from "../pages/SareeDetail";
+import MyReviews from "../pages/MyReviews";
 
 function AppRoutes() {
   const { setRole } = useAuth();
@@ -225,6 +226,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRole="admin">
             <EditCoupon />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-reviews"
+        element={
+          <ProtectedRoute allowedRole="customer">
+            <MyReviews />
           </ProtectedRoute>
         }
       />

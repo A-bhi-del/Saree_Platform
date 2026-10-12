@@ -8,6 +8,11 @@ import { useFavourites } from "../context/FavouriteContext";
 import { useCart } from "../context/CartContext";
 import SareeCard from "../components/SareeCard";
 import { useSaree } from "../context/SareeContext";
+import ProductRatingSummary from "../components/ProductRatingSummary";
+import ReviewSortAndFilter from "../components/ReviewSortAndFilter";
+import ReviewList from "../components/ReviewList";
+import ReviewForm from "../components/ReviewForm";
+import { getRatingStats, createReview } from "../api/reviewApi";
 
 function SareeDetail() {
   const { id } = useParams();
@@ -26,11 +31,18 @@ function SareeDetail() {
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
 
+  // Review states
+  const [ratingStats, setRatingStats] = useState(null);
+  const [reviewFilters, setReviewFilters] = useState({ page: 1, limit: 10, sort: "newest" });
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [submittingReview, setSubmittingReview] = useState(false);
+
   const isDark = theme === "dark";
 
   useEffect(() => {
     fetchSareeDetails();
     fetchRelatedSarees();
+    fetchRatingStats();
   }, [id]);
 
   const fetchSareeDetails = async () => {
@@ -53,6 +65,34 @@ function SareeDetail() {
     } catch (err) {
       console.error("Failed to fetch related sarees:", err);
     }
+  };
+
+  const fetchRatingStats = async () => {
+    try {
+      const response = await getRatingStats(id);
+      setRatingStats(response.data.data);
+    } catch (err) {
+      console.error("Failed to fetch rating stats:", err);
+    }
+  };
+
+  const handleSubmitReview = async (formData) => {
+    try {
+      setSubmittingReview(true);
+      await createReview(id, formData);
+      setShowReviewForm(false);
+      fetchRatingStats(); // Refresh stats
+      setReviewFilters({ ...reviewFilters }); // Trigger review list refresh
+      alert("Review submitted successfully!");
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to submit review");
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
+  const handleFilterRating = (rating) => {
+    setReviewFilters({ ...reviewFilters, rating, page: 1 });
   };
 
   const handleAddToCart = async () => {
@@ -637,6 +677,45 @@ function SareeDetail() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mb-12 space-y-8">
+          {/* Rating Summary */}
+          {ratingStats && (
+            <ProductRatingSummary
+              stats={ratingStats}
+              onFilterRating={handleFilterRating}
+              onWriteReview={() => setShowReviewForm(true)}
+              isDark={isDark}
+              userRole={role}
+            />
+          )}
+
+          {/* Review Form */}
+          {showReviewForm && role === "customer" && (
+            <ReviewForm
+              onSubmit={handleSubmitReview}
+              onCancel={() => setShowReviewForm(false)}
+              isSubmitting={submittingReview}
+              isDark={isDark}
+            />
+          )}
+
+          {/* Sort and Filter */}
+          <ReviewSortAndFilter
+            filters={reviewFilters}
+            onChange={setReviewFilters}
+            isDark={isDark}
+          />
+
+          {/* Review List */}
+          <ReviewList
+            sareeId={id}
+            filters={reviewFilters}
+            onFilterChange={setReviewFilters}
+            isDark={isDark}
+          />
         </div>
 
         {/* Related Products */}

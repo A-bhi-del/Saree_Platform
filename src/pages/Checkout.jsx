@@ -12,7 +12,6 @@ function Checkout() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const navigate = useNavigate();
-
   const [idempotencyKey] = useState(() => crypto.randomUUID());
 
   const [shippingAddress, setShippingAddress] = useState({
